@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//////////////////////
+// USER & ROLE
+//////////////////////
+
+model User {
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  name     String?
+  password String
+  role     Role
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Dokter → MedicalRecord
+  medicalRecords MedicalRecord[] @relation("DoctorRecords")
+
+  // Petugas pendaftaran → Queue
+  createdQueues Queue[] @relation("QueueCreatedBy")
+}
+
+enum Role {
+  registration
+  nurse
+  doctor
+  admin
+}
+
+//////////////////////
+// PATIENT
+//////////////////////
+
+model Patient {
+  id Int @id @default(autoincrement())
+
+  medicalRecordNumber String   @unique
+  name                String
+  nik                 String
+  nikHash             String   @unique
+  dob                 DateTime
+  address             String
+
+  records MedicalRecord[]
+  queues  Queue[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//////////////////////
+// MEDICAL RECORD
+//////////////////////
+
+model MedicalRecord {
+  id Int @id @default(autoincrement())
+
+  patient   Patient @relation(fields: [patientId], references: [id])
+  patientId Int
+
+  doctorId Int?
+  doctor   User? @relation("DoctorRecords", fields: [doctorId], references: [id])
+
+
+  // Perawat
+  subjective  String
+  objective   String
+  assessment  String
+  nursingPlan String
+
+  // Dokter
+  pharmacologyPlan    String?
+  nonPharmacologyPlan String?
+
+  visitDate DateTime            @default(now())
+  status    MedicalRecordStatus @default(DRAFT)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([patientId, visitDate])
+}
+
+enum MedicalRecordStatus {
+  DRAFT
+  FINAL
+}
+
+//////////////////////
+// QUEUE (ANTRIAN)
+//////////////////////
+
+model Queue {
+  id Int @id @default(autoincrement())
+
+  number Int
+  date   DateTime
+  status QueueStatus @default(WAITING)
+
+  patient   Patient @relation(fields: [patientId], references: [id])
+  patientId Int
+
+  // siapa petugas pendaftaran
+  createdBy   User @relation("QueueCreatedBy", fields: [createdById], references: [id])
+  createdById Int
+
+  createdAt DateTime @default(now())
+
+  @@unique([number, date])
+}
+
+enum QueueStatus {
+  WAITING
+  CALLED
+  DONE
+}
