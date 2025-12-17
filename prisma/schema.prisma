@@ -26,6 +26,9 @@ model User {
 
   // Petugas pendaftaran → Queue
   createdQueues Queue[] @relation("QueueCreatedBy")
+
+  //Audit Log 
+  auditLogs AuditLog[]
 }
 
 enum Role {
@@ -68,7 +71,6 @@ model MedicalRecord {
 
   doctorId Int?
   doctor   User? @relation("DoctorRecords", fields: [doctorId], references: [id])
-
 
   // Perawat
   subjective  String
@@ -123,3 +125,25 @@ enum QueueStatus {
   DONE
 }
 
+model AuditLog {
+  id Int @id @default(autoincrement())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  action   AuditAction
+  entity   String // "Queue" | "MedicalRecord"
+  entityId Int
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+}
+
+enum AuditAction {
+  CREATE_QUEUE
+  CALL_QUEUE
+  DONE_QUEUE
+  UPDATE_NURSING
+  FINALIZE_RECORD
+}
