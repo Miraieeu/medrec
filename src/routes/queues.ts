@@ -1,35 +1,23 @@
 import { Router } from "express";
 import { prisma } from "../prisma";
-
-declare global {
-  namespace Express {
-    interface Request {
-      user: {
-        id: number;
-        role: string;
-      };
-    }
-  }
-}
+import { requireRole } from "../middleware/requireRole";
+import { logAudit } from "../utils/audit";
+import { AuditAction } from "@prisma/client";
+import { AppError } from "../errors/AppError";
 
 const router = Router();
-
-function requireRole(role: string, allowed: string[]) {
-  if (!allowed.includes(role)) {
-    throw new Error("Forbidden");
-  }
-}
 
 // =======================
 // CREATE QUEUE (REGISTRATION)
 // =======================
-router.post("/", async (req, res) => {
-  try {
-    requireRole(req.user.role, ["registration"]);
-
+router.post(
+  "/",
+  requireRole(["registration"]),
+  async (req, res) => {
     const { patientId } = req.body;
+
     if (!patientId) {
-      return res.status(400).json({ error: "patientId is required" });
+      throw new AppError("patientId is required", 400);
     }
 
     const today = new Date();
@@ -47,20 +35,28 @@ router.post("/", async (req, res) => {
         patientId,
         number,
         date: today,
-        createdById: req.user.id,
+        createdById: req.user!.id,
       },
     });
 
-    res.json(queue);
-  } catch (err) {
-    res.status(403).json({ error: (err as Error).message });
+    await logAudit({
+      userId: req.user!.id,
+      action: AuditAction.CREATE_QUEUE,
+      entity: "Queue",
+      entityId: queue.id,
+    });
+
+    res.status(201).json({
+      success: true,
+      data: queue,
+    });
   }
-});
+);
 
 // =======================
-// LIST TODAY QUEUE (STATIC)
+// LIST TODAY QUEUE
 // =======================
-router.get("/today", async (req, res) => {
+router.get("/today", async (_req, res) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -75,28 +71,34 @@ router.get("/today", async (req, res) => {
     orderBy: { number: "asc" },
   });
 
-  res.json(queues);
+  res.json({
+    success: true,
+    data: queues,
+  });
 });
 
 // =======================
 // CALL QUEUE (NURSE)
 // =======================
-router.patch("/:id/call", async (req, res) => {
-  try {
-    requireRole(req.user.role, ["nurse"]);
-
+router.patch(
+  "/:id/call",
+  requireRole(["nurse"]),
+  async (req, res) => {
     const queueId = Number(req.params.id);
     if (isNaN(queueId)) {
-      return res.status(400).json({ error: "Invalid queue id" });
+      throw new AppError("Invalid queue id", 400);
     }
 
-    const queue = await prisma.queue.findUnique({ where: { id: queueId } });
+    const queue = await prisma.queue.findUnique({
+      where: { id: queueId },
+    });
+
     if (!queue) {
-      return res.status(404).json({ error: "Queue not found" });
+      throw new AppError("Queue not found", 404);
     }
 
     if (queue.status !== "WAITING") {
-      return res.status(400).json({ error: "Queue is not in WAITING state" });
+      throw new AppError("Queue is not in WAITING state", 400);
     }
 
     await prisma.queue.update({
@@ -116,35 +118,45 @@ router.patch("/:id/call", async (req, res) => {
       },
     });
 
-    res.json({
-      message: "Queue called",
-      queueId: queue.id,
-      medicalRecordId: record.id,
+    await logAudit({
+      userId: req.user!.id,
+      action: AuditAction.CALL_QUEUE,
+      entity: "Queue",
+      entityId: queueId,
     });
-  } catch (err) {
-    res.status(403).json({ error: (err as Error).message });
+
+    res.json({
+      success: true,
+      data: {
+        queueId,
+        medicalRecordId: record.id,
+      },
+    });
   }
-});
+);
 
 // =======================
 // DONE QUEUE (DOCTOR)
 // =======================
-router.patch("/:id/done", async (req, res) => {
-  try {
-    requireRole(req.user.role, ["doctor"]);
-
+router.patch(
+  "/:id/done",
+  requireRole(["doctor"]),
+  async (req, res) => {
     const queueId = Number(req.params.id);
     if (isNaN(queueId)) {
-      return res.status(400).json({ error: "Invalid queue id" });
+      throw new AppError("Invalid queue id", 400);
     }
 
-    const queue = await prisma.queue.findUnique({ where: { id: queueId } });
+    const queue = await prisma.queue.findUnique({
+      where: { id: queueId },
+    });
+
     if (!queue) {
-      return res.status(404).json({ error: "Queue not found" });
+      throw new AppError("Queue not found", 404);
     }
 
     if (queue.status !== "CALLED") {
-      return res.status(400).json({ error: "Queue is not in CALLED state" });
+      throw new AppError("Queue is not in CALLED state", 400);
     }
 
     await prisma.queue.update({
@@ -159,32 +171,35 @@ router.patch("/:id/done", async (req, res) => {
         doctorId: null,
       },
       data: {
-        doctorId: req.user.id,
+        doctorId: req.user!.id,
       },
     });
 
     if (updated.count === 0) {
-      return res
-        .status(400)
-        .json({ error: "No active medical record found" });
+      throw new AppError("No active medical record found", 400);
     }
 
-    res.json({
-      message: "Queue completed",
-      queueId: queue.id,
+    await logAudit({
+      userId: req.user!.id,
+      action: AuditAction.DONE_QUEUE,
+      entity: "Queue",
+      entityId: queueId,
     });
-  } catch (err) {
-    res.status(403).json({ error: (err as Error).message });
+
+    res.json({
+      success: true,
+      data: { queueId },
+    });
   }
-});
+);
 
 // =======================
-// GET QUEUE BY ID (DYNAMIC)
+// GET QUEUE BY ID
 // =======================
 router.get("/:id", async (req, res) => {
   const queueId = Number(req.params.id);
   if (isNaN(queueId)) {
-    return res.status(400).json({ error: "Invalid queue id" });
+    throw new AppError("Invalid queue id", 400);
   }
 
   const queue = await prisma.queue.findUnique({
@@ -193,11 +208,86 @@ router.get("/:id", async (req, res) => {
   });
 
   if (!queue) {
-    return res.status(404).json({ error: "Queue not found" });
+    throw new AppError("Queue not found", 404);
   }
 
-  res.json(queue);
+  res.json({
+    success: true,
+    data: queue,
+  });
 });
 
-// ✅ EXPORT PALING BAWAH
+// =======================
+// SUMMARY TODAY
+// =======================
+router.get("/summary/today", async (_req, res) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const [waiting, called, done] = await Promise.all([
+    prisma.queue.count({ where: { date: today, status: "WAITING" } }),
+    prisma.queue.count({ where: { date: today, status: "CALLED" } }),
+    prisma.queue.count({ where: { date: today, status: "DONE" } }),
+  ]);
+
+  res.json({
+    success: true,
+    data: {
+      waiting,
+      called,
+      done,
+      total: waiting + called + done,
+    },
+  });
+});
+
+// =======================
+// NEXT QUEUE (UI HELPER)
+// =======================
+router.post("/next", async (_req, res) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const nextQueue = await prisma.queue.findFirst({
+    where: { date: today, status: "WAITING" },
+    orderBy: { number: "asc" },
+  });
+
+  if (!nextQueue) {
+    throw new AppError("No waiting queue", 404);
+  }
+
+  await prisma.queue.update({
+    where: { id: nextQueue.id },
+    data: { status: "CALLED" },
+  });
+
+  res.json({
+    success: true,
+    data: {
+      queueId: nextQueue.id,
+      number: nextQueue.number,
+    },
+  });
+});
+
+// =======================
+// ACTIVE QUEUES (DRAFT RECORDS)
+// =======================
+router.get("/active", async (_req, res) => {
+  const records = await prisma.medicalRecord.findMany({
+    where: { status: "DRAFT" },
+    include: {
+      patient: true,
+      doctor: { select: { id: true, name: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  res.json({
+    success: true,
+    data: records,
+  });
+});
+
 export default router;

@@ -1,27 +1,31 @@
 import { Router } from "express";
 import { prisma } from "../prisma";
+import { requireRole } from "../middleware/requireRole";
+import { AppError } from "../errors/AppError";
+import { assertRecordEditable } from "../services/medicalRecord.service";
 
 const router = Router();
 
-function requireRole(role: string, allowed: string[]) {
-  if (!allowed.includes(role)) throw new Error("Forbidden");
-}
-
-import { assertRecordEditable } from "../services/medicalRecord.service";
-
-router.patch("/:id/nursing", async (req, res) => {
-  try {
-    requireRole(req.user.role, ["nurse"]);
-
+// =======================
+// UPDATE NURSING DATA (NURSE)
+// =======================
+router.patch(
+  "/:id/nursing",
+  requireRole(["nurse"]),
+  async (req, res) => {
     const recordId = Number(req.params.id);
     if (isNaN(recordId)) {
-      return res.status(400).json({ error: "Invalid record id" });
+      throw new AppError("Invalid record id", 400);
     }
 
-    // 🔒 HELPER DIPAKAI DI SINI
-    await assertRecordEditable(recordId);
-
     const { subjective, objective, assessment, nursingPlan } = req.body;
+
+    if (!subjective && !objective && !assessment && !nursingPlan) {
+      throw new AppError("No nursing data provided", 400);
+    }
+
+    // 🔒 pastikan masih editable (DRAFT)
+    await assertRecordEditable(recordId);
 
     await prisma.medicalRecord.update({
       where: { id: recordId },
@@ -33,33 +37,39 @@ router.patch("/:id/nursing", async (req, res) => {
       },
     });
 
-    res.json({ message: "Nursing data updated", recordId });
-  } catch (err) {
-    res.status(400).json({ error: (err as Error).message });
+    res.json({
+      success: true,
+      message: "Nursing data updated",
+      recordId,
+    });
   }
-});
+);
 
 // =======================
 // FINALIZE RECORD (DOCTOR)
 // =======================
-router.patch("/:id/finalize", async (req, res) => {
-  try {
-    requireRole(req.user.role, ["doctor"]);
-
+router.patch(
+  "/:id/finalize",
+  requireRole(["doctor"]),
+  async (req, res) => {
     const recordId = Number(req.params.id);
     if (isNaN(recordId)) {
-      return res.status(400).json({ error: "Invalid record id" });
+      throw new AppError("Invalid record id", 400);
     }
 
     const { pharmacologyPlan, nonPharmacologyPlan } = req.body || {};
 
     if (!pharmacologyPlan && !nonPharmacologyPlan) {
-      return res.status(400).json({
-        error: "pharmacologyPlan or nonPharmacologyPlan is required",
-      });
+      throw new AppError(
+        "pharmacologyPlan or nonPharmacologyPlan is required",
+        400
+      );
     }
 
-    const record = await assertRecordEditable(recordId);
+    // 🔒 helper cek:
+    // - record ada
+    // - status masih DRAFT
+    await assertRecordEditable(recordId);
 
     await prisma.medicalRecord.update({
       where: { id: recordId },
@@ -67,22 +77,26 @@ router.patch("/:id/finalize", async (req, res) => {
         pharmacologyPlan,
         nonPharmacologyPlan,
         status: "FINAL",
-        doctorId: req.user.id,
+        doctorId: req.user!.id,
       },
     });
 
-    res.json({ message: "Medical record finalized", recordId });
-  } catch (err) {
-    res.status(400).json({ error: (err as Error).message });
+    res.json({
+      success: true,
+      message: "Medical record finalized",
+      recordId,
+    });
   }
-});
-
+);
 
 // =======================
-// LIST RECORD BY PATIENT
+// LIST RECORDS BY PATIENT
 // =======================
 router.get("/patient/:patientId", async (req, res) => {
   const patientId = Number(req.params.patientId);
+  if (isNaN(patientId)) {
+    throw new AppError("Invalid patient id", 400);
+  }
 
   const records = await prisma.medicalRecord.findMany({
     where: { patientId },
@@ -94,7 +108,10 @@ router.get("/patient/:patientId", async (req, res) => {
     orderBy: { createdAt: "desc" },
   });
 
-  res.json(records);
+  res.json({
+    success: true,
+    data: records,
+  });
 });
 
 // =======================
@@ -102,6 +119,9 @@ router.get("/patient/:patientId", async (req, res) => {
 // =======================
 router.get("/:id", async (req, res) => {
   const recordId = Number(req.params.id);
+  if (isNaN(recordId)) {
+    throw new AppError("Invalid record id", 400);
+  }
 
   const record = await prisma.medicalRecord.findUnique({
     where: { id: recordId },
@@ -114,55 +134,13 @@ router.get("/:id", async (req, res) => {
   });
 
   if (!record) {
-    return res.status(404).json({ error: "Medical record not found" });
+    throw new AppError("Medical record not found", 404);
   }
 
-  res.json(record);
-});
-
-// =======================
-// FINALIZE RECORD (DOCTOR)
-// =======================
-router.patch("/:id/finalize", async (req, res) => {
-  try {
-    requireRole(req.user.role, ["doctor"]);
-
-    const recordId = Number(req.params.id);
-    if (isNaN(recordId)) {
-      return res.status(400).json({ error: "Invalid record id" });
-    }
-
-    const record = await prisma.medicalRecord.findUnique({
-      where: { id: recordId },
-    });
-
-    if (!record) {
-      return res.status(404).json({ error: "Medical record not found" });
-    }
-
-    // 🔒 LOCK FINAL
-    if (record.status === "FINAL") {
-      return res.status(400).json({
-        error: "Medical record already FINAL",
-      });
-    }
-
-    const { pharmacologyPlan, nonPharmacologyPlan } = req.body;
-
-    await prisma.medicalRecord.update({
-      where: { id: recordId },
-      data: {
-        pharmacologyPlan,
-        nonPharmacologyPlan,
-        status: "FINAL",
-        doctorId: req.user.id,
-      },
-    });
-
-    res.json({ message: "Medical record finalized", recordId });
-  } catch (err) {
-    res.status(403).json({ error: (err as Error).message });
-  }
+  res.json({
+    success: true,
+    data: record,
+  });
 });
 
 export default router;
