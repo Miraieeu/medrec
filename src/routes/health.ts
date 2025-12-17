@@ -2,10 +2,24 @@ import { Router } from "express";
 
 const router = Router();
 
-router.get("/", (req, res) => {
+/**
+ * @swagger
+ * /api/health:
+ *   get:
+ *     summary: Health check
+ *     tags: [System]
+ *     responses:
+ *       200:
+ *         description: Service is healthy
+ */
+router.get("/", (_req, res) => {
   res.json({
-    status: "ok",
-    service: "medrec-api",
+    success: true,
+    data: {
+      status: "ok",
+      service: "medrec-api",
+      timestamp: new Date().toISOString(),
+    },
   });
 });
 

@@ -1,45 +1,59 @@
-import * as jwt from "jsonwebtoken";
-import { SignOptions } from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import jwt, { Secret } from "jsonwebtoken";
 import { prisma } from "../prisma";
+import { AppError } from "../errors/AppError";
 
 export async function login(email: string, password: string) {
-  const user = await prisma.user.findUnique({ where: { email } });
+  // 1️⃣ Validasi input
+  if (!email || !password) {
+    throw new AppError("Email and password are required", 400);
+  }
 
+  // 2️⃣ Cari user
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  // ❗ Jangan bocorkan apakah email atau password yang salah
   if (!user) {
-    throw new Error("Invalid credentials");
+    throw new AppError("Invalid email or password", 401);
   }
 
-  const valid = await bcrypt.compare(password, user.password);
-  if (!valid) {
-    throw new Error("Invalid credentials");
+  // 3️⃣ Cek password
+  const validPassword = await bcrypt.compare(password, user.password);
+  if (!validPassword) {
+    throw new AppError("Invalid email or password", 401);
   }
 
+  // 4️⃣ Pastikan JWT_SECRET ada
   if (!process.env.JWT_SECRET) {
-    throw new Error("JWT_SECRET is not defined");
+    throw new AppError("Server misconfiguration", 500);
   }
 
-  const payload = {
-    id: user.id,
-    role: user.role,
-  };
+  const JWT_SECRET = process.env.JWT_SECRET as Secret;
 
-  const options: SignOptions = {
-    expiresIn: "1d",
-  };
-
+  // 5️⃣ Generate token
   const token = jwt.sign(
-    payload,
-    process.env.JWT_SECRET,
-    options
+    {
+      id: String(user.id),
+      role: String(user.role),
+    },
+    JWT_SECRET,
+    {
+      expiresIn: process.env.JWT_EXPIRES_IN || "1d",
+    } as any
   );
 
+  // 6️⃣ Response rapi untuk UI
   return {
-    token,
-    user: {
-      id: user.id,
-      name: user.name,
-      role: user.role,
+    success: true,
+    data: {
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        role: user.role,
+      },
     },
   };
 }
