@@ -22,19 +22,28 @@ type QueueTodayResponse = {
 
 export default function RegistrationQueuePage() {
   const [queues, setQueues] = useState<Queue[]>([]);
-  const [patientId, setPatientId] = useState("");
+  const [mrDigits, setMrDigits] = useState(""); // ⬅️ hanya angka
 
   async function load() {
-    const res = await apiFetch<QueueTodayResponse>("/api/queues/today");
+    const res = (await apiFetch("/api/queues/today")) as QueueTodayResponse;
     setQueues(res.data);
   }
 
   async function createQueue() {
+    if (!mrDigits) {
+      alert("Nomor MR wajib diisi");
+      return;
+    }
+
+    // bentuk final MR number
+    const mrNumber = `MR-${mrDigits.padStart(6, "0")}`;
+    console.log("REQ BODY =", { mrNumber });
     await apiFetch("/api/queues", {
       method: "POST",
-      body: JSON.stringify({ patientId: Number(patientId) }),
+      body: JSON.stringify({ mrNumber }),
     });
-    setPatientId("");
+
+    setMrDigits("");
     load();
   }
 
@@ -43,25 +52,35 @@ export default function RegistrationQueuePage() {
   }, []);
 
   return (
-    <ProtectedRoute allowedRoles={["registration"]}>
-      <DashboardLayout title="Antrian Pasien">
-        <div className="mb-4 flex gap-2">
-          <input
-            className="border p-2"
-            placeholder="Patient ID"
-            value={patientId}
-            onChange={(e) => setPatientId(e.target.value)}
-          />
-          <button
-            onClick={createQueue}
-            className="bg-blue-600 px-4 py-2 text-white"
-          >
-            Tambah
-          </button>
-        </div>
+  <ProtectedRoute allowedRoles={["registration"]}>
+    <DashboardLayout title="Antrian Pasien">
+      {/* INPUT MR NUMBER */}
+      <div className="mb-6 flex items-center gap-2">
+        <span className="rounded border bg-gray-100 px-3 py-2 text-gray-600">
+          MR-
+        </span>
 
-        <QueueTable queues={queues} role="registration" />
-      </DashboardLayout>
-    </ProtectedRoute>
-  );
-}
+        <input
+          className="border p-2 w-40"
+          placeholder="000123"
+          value={mrDigits}
+          onChange={(e) => {
+            // hanya izinkan angka
+            const digits = e.target.value.replace(/\D/g, "");
+            setMrDigits(digits);
+          }}
+        />
+
+        <button
+          onClick={createQueue}
+          className="bg-blue-600 px-4 py-2 text-white"
+        >
+          Tambah
+        </button>
+      </div>
+
+      {/* QUEUE TABLE */}
+      <QueueTable queues={queues} role="registration" />
+    </DashboardLayout>
+  </ProtectedRoute>
+);}

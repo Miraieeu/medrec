@@ -1,25 +1,36 @@
 import { Router } from "express";
 import { prisma } from "../prisma";
 import { requireRole } from "../middleware/requireRole";
-import { authFromNextAuth } from "../middleware/authFromNextAuth";
+//import { authFromNextAuth } from "../middleware/authFromNextAuth";
 import { logAudit } from "../utils/audit";
 import { AuditAction } from "@prisma/client";
 import { AppError } from "../errors/AppError";
+import { authJWT } from "../middleware/authJWT";
 
 const router = Router();
-
 // =======================
 // CREATE QUEUE (REGISTRATION)
 // =======================
 router.post(
   "/",
-  authFromNextAuth,
+  authJWT,
   requireRole(["registration"]),
   async (req, res) => {
-    const { patientId } = req.body;
+    const { mrNumber } = req.body;
 
-    if (!patientId) {
-      throw new AppError("patientId is required", 400);
+    console.log("🔥 NEW QUEUE ROUTE ACTIVE 🔥");
+    console.log("BODY =", req.body);
+
+    if (!mrNumber || typeof mrNumber !== "string") {
+      throw new AppError("mrNumber is required", 400);
+    }
+
+    const patient = await prisma.patient.findUnique({
+      where: { medicalRecordNumber: mrNumber },
+    });
+
+    if (!patient) {
+      throw new AppError("Patient not found", 404);
     }
 
     const today = new Date();
@@ -34,7 +45,7 @@ router.post(
 
     const queue = await prisma.queue.create({
       data: {
-        patientId,
+        patientId: patient.id,
         number,
         date: today,
         createdById: req.user!.id,
@@ -54,6 +65,8 @@ router.post(
     });
   }
 );
+
+
 
 // =======================
 // LIST TODAY QUEUE (PUBLIC INTERNAL)
@@ -84,7 +97,7 @@ router.get("/today", async (_req, res) => {
 // =======================
 router.patch(
   "/:id/call",
-  authFromNextAuth,
+  authJWT,
   requireRole(["nurse"]),
   async (req, res) => {
     const queueId = Number(req.params.id);
@@ -143,7 +156,7 @@ router.patch(
 // =======================
 router.patch(
   "/:id/done",
-  authFromNextAuth,
+  authJWT,
   requireRole(["doctor"]),
   async (req, res) => {
     const queueId = Number(req.params.id);

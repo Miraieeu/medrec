@@ -1,4 +1,4 @@
-import { Router } from "express";
+/*import { Router } from "express";
 import { login } from "../services/auth.service";
 import { authJWT } from "../middleware/authJWT";
 import { AppError } from "../errors/AppError";
@@ -35,7 +35,7 @@ const router = Router();
  *       500:
  *         description: Server error
  */
-
+/*
 // =======================
 // LOGIN
 // =======================
@@ -68,6 +68,48 @@ router.get("/me", authJWT, (req, res) => {
   res.json({
     success: true,
     data: req.user,
+  });
+});
+
+export default router;
+*/
+import { Router } from "express";
+import jwt from "jsonwebtoken";
+import { prisma } from "../prisma";
+
+const router = Router();
+
+/**
+ * EXCHANGE FRONTEND SESSION → API TOKEN
+ */
+router.post("/exchange", async (req, res) => {
+  const { email } = req.body;
+
+if (!email) {
+  return res.status(400).json({ error: "email required" });
+}
+
+const user = await prisma.user.findUnique({
+  where: { email },
+});
+
+if (!user) {
+  return res.status(401).json({ error: "User not found" });
+}
+
+
+  const apiToken = jwt.sign(
+    {
+      userId: user.id,
+      role: user.role,
+    },
+    process.env.JWT_SECRET!,
+    { expiresIn: "1h" }
+  );
+
+  res.json({
+    token: apiToken,
+    role: user.role,
   });
 });
 

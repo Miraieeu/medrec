@@ -1,46 +1,60 @@
 "use client";
 
 import { ReactNode } from "react";
-import LogoutButton from "@/components/LogoutButton";
-import Sidebar from "@/components/Sidebar";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import Sidebar from "./Sidebar";
 
-export default function DashboardLayout({
-  title,
-  children,
-}: {
-  title: string;
+type Props = {
+  title?: string;
   children: ReactNode;
-}) {
+};
+
+export default function DashboardLayout({ title, children }: Props) {
   const { data: session } = useSession();
+  const user = session?.user as
+    | { email?: string; role?: string }
+    | undefined;
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
+    <div className="flex min-h-screen bg-white">
+      {/* SIDEBAR */}
       <Sidebar />
 
-      {/* Main area */}
-      <div className="flex flex-1 flex-col">
-        {/* Header */}
-        <header className="flex items-center justify-between bg-white px-6 py-4 shadow">
+      {/* CONTENT */}
+      <main className="flex-1 flex flex-col">
+        {/* HEADER */}
+        <header className="flex items-center justify-between border-b px-6 py-4">
           <div>
-            <h1 className="text-lg font-bold">MedRec System</h1>
-            <p className="text-sm text-gray-600">
-              Role: {session?.user?.role}
-            </p>
+            {title && (
+              <h1 className="text-lg font-semibold">{title}</h1>
+            )}
           </div>
 
-          <LogoutButton />
+          {/* USER INFO */}
+          {user && (
+            <div className="flex items-center gap-4 text-sm">
+              <div className="text-right leading-tight">
+                <div className="font-medium">
+                  {user.email}
+                </div>
+                <div className="text-gray-500 capitalize">
+                  {user.role}
+                </div>
+              </div>
+
+              <button
+                onClick={() => signOut({ callbackUrl: "/login" })}
+                className="rounded border px-3 py-1 text-sm hover:bg-gray-100"
+              >
+                Logout
+              </button>
+            </div>
+          )}
         </header>
 
-        {/* Content */}
-        <main className="p-6">
-          <h2 className="mb-4 text-xl font-semibold">{title}</h2>
-          <div className="rounded bg-white p-4 shadow">
-            {children}
-          </div>
-        </main>
-      </div>
+        {/* PAGE CONTENT */}
+        <div className="flex-1 p-6">{children}</div>
+      </main>
     </div>
   );
 }

@@ -6,12 +6,15 @@ export async function authFromNextAuth(
   res: Response,
   next: NextFunction
 ) {
-  try {
-    // ⬇️ INI KUNCINYA
+   try {
     const token = await getToken({
-  req: { headers: { cookie: req.headers.cookie ?? "" } } as any,
-  secret: process.env.NEXTAUTH_SECRET,
-});
+      req: {
+        headers: {
+          cookie: req.headers.cookie ?? "",
+        },
+      } as any,
+      secret: process.env.NEXTAUTH_SECRET,
+    });
     console.log("COOKIE =", req.headers.cookie);
     console.log("TOKEN =", token);
 

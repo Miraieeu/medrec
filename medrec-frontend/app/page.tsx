@@ -1,5 +1,11 @@
-// medrec-frontend/app/page.tsx
+"use client";
+import { useSession } from "next-auth/react";
+
+
 export default function HomePage() {
+  const { data: session, status } = useSession();
+  console.log(status, session);
+ 
   return (
     <main className="flex min-h-screen items-center justify-center">
       <div className="text-center space-y-4">

@@ -1,32 +1,27 @@
-export async function apiFetch<T = any>(
-  path: string,
-  options?: RequestInit
-): Promise<T> {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+let apiToken: string | null = null;
 
-  if (!API_URL) {
-    throw new Error("NEXT_PUBLIC_API_URL is not defined");
-  }
+export function setApiToken(token: string) {
+  apiToken = token;
+}
 
-  const res = await fetch(`${API_URL}${path}`, {
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    ...options,
-  });
+export async function apiFetch(path: string, options: RequestInit = {}) {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}${path}`,
+    {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(apiToken
+          ? { Authorization: `Bearer ${apiToken}` }
+          : {}),
+        ...(options.headers || {}),
+      },
+    }
+  );
 
   if (!res.ok) {
-    const contentType = res.headers.get("content-type");
-
-    if (contentType?.includes("application/json")) {
-      const data = await res.json();
-      throw new Error(data.error || JSON.stringify(data));
-    } else {
-      const text = await res.text();
-      throw new Error(text || "Server error");
-    }
+    throw new Error(await res.text());
   }
 
-  return res.json() as Promise<T>;
+  return res.json();
 }
