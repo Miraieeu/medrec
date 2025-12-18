@@ -71,26 +71,32 @@ router.post(
 // =======================
 // LIST TODAY QUEUE (PUBLIC INTERNAL)
 // =======================
-router.get("/today", async (_req, res) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+router.get(
+  "/today",
+  authJWT,
+  requireRole(["registration", "nurse", "doctor"]),
+  async (_req, res) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-  const queues = await prisma.queue.findMany({
-    where: { date: today },
-    include: {
-      patient: true,
-      createdBy: {
-        select: { id: true, name: true, role: true },
+    const queues = await prisma.queue.findMany({
+      where: { date: today },
+      include: {
+        patient: true,
+        createdBy: {
+          select: { id: true, name: true, role: true },
+        },
       },
-    },
-    orderBy: { number: "asc" },
-  });
+      orderBy: { number: "asc" },
+    });
 
-  res.json({
-    success: true,
-    data: queues,
-  });
-});
+    res.json({
+      success: true,
+      data: queues,
+    });
+  }
+);
+
 
 // =======================
 // CALL QUEUE (NURSE)
@@ -213,49 +219,61 @@ router.patch(
 // =======================
 // GET QUEUE BY ID
 // =======================
-router.get("/:id", async (req, res) => {
-  const queueId = Number(req.params.id);
-  if (isNaN(queueId)) {
-    throw new AppError("Invalid queue id", 400);
+router.get(
+  "/:id",
+  authJWT,
+  requireRole(["registration", "nurse", "doctor"]),
+  async (req, res) => {
+    const queueId = Number(req.params.id);
+    if (isNaN(queueId)) {
+      throw new AppError("Invalid queue id", 400);
+    }
+
+    const queue = await prisma.queue.findUnique({
+      where: { id: queueId },
+      include: { patient: true },
+    });
+
+    if (!queue) {
+      throw new AppError("Queue not found", 404);
+    }
+
+    res.json({
+      success: true,
+      data: queue,
+    });
   }
+);
 
-  const queue = await prisma.queue.findUnique({
-    where: { id: queueId },
-    include: { patient: true },
-  });
-
-  if (!queue) {
-    throw new AppError("Queue not found", 404);
-  }
-
-  res.json({
-    success: true,
-    data: queue,
-  });
-});
 
 // =======================
 // SUMMARY TODAY
 // =======================
-router.get("/summary/today", async (_req, res) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+router.get(
+  "/summary/today",
+  authJWT,
+  requireRole(["admin", "registration", "nurse", "doctor"]),
+  async (_req, res) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-  const [waiting, called, done] = await Promise.all([
-    prisma.queue.count({ where: { date: today, status: "WAITING" } }),
-    prisma.queue.count({ where: { date: today, status: "CALLED" } }),
-    prisma.queue.count({ where: { date: today, status: "DONE" } }),
-  ]);
+    const [waiting, called, done] = await Promise.all([
+      prisma.queue.count({ where: { date: today, status: "WAITING" } }),
+      prisma.queue.count({ where: { date: today, status: "CALLED" } }),
+      prisma.queue.count({ where: { date: today, status: "DONE" } }),
+    ]);
 
-  res.json({
-    success: true,
-    data: {
-      waiting,
-      called,
-      done,
-      total: waiting + called + done,
-    },
-  });
-});
+    res.json({
+      success: true,
+      data: {
+        waiting,
+        called,
+        done,
+        total: waiting + called + done,
+      },
+    });
+  }
+);
+
 
 export default router;

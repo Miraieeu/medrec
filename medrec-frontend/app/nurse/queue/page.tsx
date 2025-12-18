@@ -24,6 +24,7 @@ type QueueTodayResponse = {
 export default function NurseQueuePage() {
   const [queues, setQueues] = useState<Queue[]>([]);
   const [loadingId, setLoadingId] = useState<number | null>(null);
+  const [ready, setReady] = useState(false); // ⬅️ PENTING
 
   async function load() {
     const res = (await apiFetch("/api/queues/today")) as QueueTodayResponse;
@@ -42,9 +43,26 @@ export default function NurseQueuePage() {
     }
   }
 
+  // 🔐 Tunggu token siap
   useEffect(() => {
-    load();
+    const checkToken = () => {
+      // api.ts pakai closure, jadi kita test dengan fetch ringan
+      apiFetch("/api/queues/today")
+        .then(() => setReady(true))
+        .catch(() => {
+          // token belum siap → retry
+          setTimeout(checkToken, 100);
+        });
+    };
+
+    checkToken();
   }, []);
+
+  // 🚀 Load data hanya saat ready
+  useEffect(() => {
+    if (!ready) return;
+    load();
+  }, [ready]);
 
   return (
     <ProtectedRoute allowedRoles={["nurse"]}>

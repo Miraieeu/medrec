@@ -2,24 +2,30 @@ import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 
 export function authJWT(req: Request, res: Response, next: NextFunction) {
-  const header = req.headers.authorization;
+  const auth = req.headers.authorization;
 
-  if (!header || !header.startsWith("Bearer ")) {
+  console.group("🛡️ AUTH JWT");
+  console.log("Authorization header =", auth);
+
+  if (!auth) {
+    console.log("❌ NO AUTH HEADER");
+    console.groupEnd();
     return res.status(401).json({ error: "Missing token" });
   }
 
-  const token = header.replace("Bearer ", "");
+  const token = auth.split(" ")[1];
+  console.log("token preview =", token.slice(0, 20) + "...");
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET!) as any;
+    console.log("payload =", payload);
 
-    req.user = {
-      id: payload.userId,
-      role: payload.role,
-    };
-
+    req.user = payload;
+    console.groupEnd();
     next();
-  } catch {
+  } catch (err) {
+    console.log("❌ INVALID TOKEN");
+    console.groupEnd();
     return res.status(401).json({ error: "Invalid token" });
   }
 }

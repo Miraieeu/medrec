@@ -22,12 +22,19 @@ export default function ProtectedRoute({
       return;
     }
 
-    if (!allowedRoles.includes((session.user as any).role)) {
+    const role = (session.user as any).role;
+    if (!allowedRoles.includes(role)) {
       router.replace("/unauthorized");
     }
   }, [session, status, allowedRoles, router]);
 
-  if (status === "loading") return null;
+  if (status === "loading") {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <span className="text-gray-500">Checking session...</span>
+      </div>
+    );
+  }
 
   return <>{children}</>;
 }

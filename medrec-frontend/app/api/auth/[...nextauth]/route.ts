@@ -51,6 +51,10 @@ const handler = NextAuth({
         token.sub = user.id;      // ⬅️ WAJIB
         token.role = user.role;  // ⬅️ SUDAH ADA
       }
+      console.log("JWT CALLBACK", {
+      tokenRole: token.role,
+      userRole: (user as any)?.role,
+    });
       return token;
     },
 
@@ -59,6 +63,10 @@ const handler = NextAuth({
         (session.user as any).id = token.sub;
         (session.user as any).role = token.role;
       }
+       console.log("SESSION CALLBACK", {
+    sessionUser: session.user,
+    role: (session.user as any)?.role,
+  });
       return session;
     },
   },

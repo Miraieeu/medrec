@@ -1,9 +1,10 @@
-import "./globals.css";
 import AuthSessionProvider from "@/components/SessionProvider";
+// app/layout.tsx (FINAL & BENAR)
+import "./globals.css";
+import Providers from "./Providers";
 
 export const metadata = {
   title: "MedRec System",
-  description: "Internal Medical Record System",
 };
 
 export default function RootLayout({
@@ -14,9 +15,9 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body>
-        <AuthSessionProvider>
+        <Providers>
           {children}
-        </AuthSessionProvider>
+        </Providers>
       </body>
     </html>
   );
