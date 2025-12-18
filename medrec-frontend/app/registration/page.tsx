@@ -1,11 +1,11 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
-export default function PatientRegistrationPage() {
+export default function RegistrationDashboard() {
   return (
     <ProtectedRoute allowedRoles={["registration"]}>
-      <DashboardLayout title="Pendaftaran Pasien">
-        <p>Form pendaftaran pasien.</p>
+      <DashboardLayout title="Dashboard Pendaftaran">
+        <p>Halaman dashboard pendaftaran.</p>
       </DashboardLayout>
     </ProtectedRoute>
   );

@@ -29,6 +29,7 @@ model User {
 
   //Audit Log 
   auditLogs AuditLog[]
+  authLogs AuthLog[]
 }
 
 enum Role {
@@ -146,4 +147,20 @@ enum AuditAction {
   DONE_QUEUE
   UPDATE_NURSING
   FINALIZE_RECORD
+}
+model AuthLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+
+  action    AuthAction
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+}
+
+enum AuthAction {
+  LOGIN
+  LOGOUT
 }

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../prisma";
 import { requireRole } from "../middleware/requireRole";
+import { authFromNextAuth } from "../middleware/authFromNextAuth";
 import { logAudit } from "../utils/audit";
 import { AuditAction } from "@prisma/client";
 import { AppError } from "../errors/AppError";
@@ -12,6 +13,7 @@ const router = Router();
 // =======================
 router.post(
   "/",
+  authFromNextAuth,
   requireRole(["registration"]),
   async (req, res) => {
     const { patientId } = req.body;
@@ -54,7 +56,7 @@ router.post(
 );
 
 // =======================
-// LIST TODAY QUEUE
+// LIST TODAY QUEUE (PUBLIC INTERNAL)
 // =======================
 router.get("/today", async (_req, res) => {
   const today = new Date();
@@ -82,6 +84,7 @@ router.get("/today", async (_req, res) => {
 // =======================
 router.patch(
   "/:id/call",
+  authFromNextAuth,
   requireRole(["nurse"]),
   async (req, res) => {
     const queueId = Number(req.params.id);
@@ -140,6 +143,7 @@ router.patch(
 // =======================
 router.patch(
   "/:id/done",
+  authFromNextAuth,
   requireRole(["doctor"]),
   async (req, res) => {
     const queueId = Number(req.params.id);
@@ -238,55 +242,6 @@ router.get("/summary/today", async (_req, res) => {
       done,
       total: waiting + called + done,
     },
-  });
-});
-
-// =======================
-// NEXT QUEUE (UI HELPER)
-// =======================
-router.post("/next", async (_req, res) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const nextQueue = await prisma.queue.findFirst({
-    where: { date: today, status: "WAITING" },
-    orderBy: { number: "asc" },
-  });
-
-  if (!nextQueue) {
-    throw new AppError("No waiting queue", 404);
-  }
-
-  await prisma.queue.update({
-    where: { id: nextQueue.id },
-    data: { status: "CALLED" },
-  });
-
-  res.json({
-    success: true,
-    data: {
-      queueId: nextQueue.id,
-      number: nextQueue.number,
-    },
-  });
-});
-
-// =======================
-// ACTIVE QUEUES (DRAFT RECORDS)
-// =======================
-router.get("/active", async (_req, res) => {
-  const records = await prisma.medicalRecord.findMany({
-    where: { status: "DRAFT" },
-    include: {
-      patient: true,
-      doctor: { select: { id: true, name: true } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-
-  res.json({
-    success: true,
-    data: records,
   });
 });
 

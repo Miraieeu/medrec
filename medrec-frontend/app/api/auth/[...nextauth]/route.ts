@@ -31,6 +31,7 @@ const handler = NextAuth({
 
         if (!valid) return null;
 
+        // ⬇️ INI SUDAH BENAR
         return {
           id: user.id.toString(),
           email: user.email,
@@ -47,13 +48,15 @@ const handler = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as any).role;
+        token.sub = user.id;      // ⬅️ WAJIB
+        token.role = user.role;  // ⬅️ SUDAH ADA
       }
       return token;
     },
 
     async session({ session, token }) {
       if (session.user) {
+        (session.user as any).id = token.sub;
         (session.user as any).role = token.role;
       }
       return session;

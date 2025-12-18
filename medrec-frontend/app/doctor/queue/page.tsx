@@ -6,16 +6,16 @@ import QueueTable from "@/components/QueueTable";
 import DashboardLayout from "@/components/DashboardLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
-export default function NurseQueuePage() {
+export default function DoctorQueuePage() {
   const [queues, setQueues] = useState<any[]>([]);
 
   async function load() {
     const res = await apiFetch("/queues/today");
-    setQueues(res.data.filter((q: any) => q.status === "WAITING"));
+    setQueues(res.data.filter((q: any) => q.status === "CALLED"));
   }
 
-  async function callQueue(id: number) {
-    await apiFetch(`/queues/${id}/call`, { method: "PATCH" });
+  async function doneQueue(id: number) {
+    await apiFetch(`/queues/${id}/done`, { method: "PATCH" });
     load();
   }
 
@@ -24,12 +24,12 @@ export default function NurseQueuePage() {
   }, []);
 
   return (
-    <ProtectedRoute allowedRoles={["nurse"]}>
-      <DashboardLayout title="Panggil Antrian">
+    <ProtectedRoute allowedRoles={["doctor"]}>
+      <DashboardLayout title="Antrian Aktif">
         <QueueTable
           queues={queues}
-          role="nurse"
-          onCall={callQueue}
+          role="doctor"
+          onDone={doneQueue}
         />
       </DashboardLayout>
     </ProtectedRoute>
