@@ -84,7 +84,7 @@ const router = Router();
  */
 router.post("/exchange", async (req, res) => {
   const { email } = req.body;
-
+  console.log("🔥 EXCHANGE BODY =", req.body);
 if (!email) {
   return res.status(400).json({ error: "email required" });
 }
@@ -98,14 +98,16 @@ if (!user) {
 }
 
 
-  const apiToken = jwt.sign(
-    {
-      userId: user.id,
-      role: user.role,
-    },
-    process.env.JWT_SECRET!,
-    { expiresIn: "1h" }
-  );
+const apiToken = jwt.sign(
+  {
+    id: user.id,        // ⬅️ GANTI userId → id
+    role: user.role,
+    email: user.email, // opsional tapi bagus
+  },
+  process.env.JWT_SECRET!,
+  { expiresIn: "1h" }
+);
+
 
   res.json({
     token: apiToken,

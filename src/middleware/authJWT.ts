@@ -1,31 +1,39 @@
 import jwt from "jsonwebtoken";
-import { Request, Response, NextFunction } from "express";
+import { AppError } from "../errors/AppError";
 
-export function authJWT(req: Request, res: Response, next: NextFunction) {
+export function authJWT(req, _res, next) {
   const auth = req.headers.authorization;
 
-  console.group("🛡️ AUTH JWT");
-  console.log("Authorization header =", auth);
-
-  if (!auth) {
-    console.log("❌ NO AUTH HEADER");
-    console.groupEnd();
-    return res.status(401).json({ error: "Missing token" });
+  if (!auth || !auth.startsWith("Bearer ")) {
+    throw new AppError("Missing token", 401);
   }
 
-  const token = auth.split(" ")[1];
-  console.log("token preview =", token.slice(0, 20) + "...");
+  const token = auth.slice(7);
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET!) as any;
-    console.log("payload =", payload);
+    const payload = jwt.verify(
+      token,
+      process.env.JWT_SECRET!
+    ) as {
+      id: number;
+      role: string;
+      email?: string;
+    };
 
-    req.user = payload;
-    console.groupEnd();
+    // ✅ WAJIB id & role
+    if (!payload.id || !payload.role) {
+      throw new AppError("Invalid token payload", 401);
+    }
+
+    // 🔥 INI YANG DIPAKAI PRISMA
+    req.user = {
+      id: payload.id,
+      role: payload.role,
+      email: payload.email,
+    };
+
     next();
   } catch (err) {
-    console.log("❌ INVALID TOKEN");
-    console.groupEnd();
-    return res.status(401).json({ error: "Invalid token" });
+    throw new AppError("Invalid token", 401);
   }
 }

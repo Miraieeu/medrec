@@ -1,13 +1,35 @@
 import { Router } from "express";
 import { prisma } from "../prisma";
 import { requireRole } from "../middleware/requireRole";
-//import { authFromNextAuth } from "../middleware/authFromNextAuth";
 import { logAudit } from "../utils/audit";
 import { AuditAction } from "@prisma/client";
 import { AppError } from "../errors/AppError";
 import { authJWT } from "../middleware/authJWT";
 
 const router = Router();
+
+/**
+ * Helper: waktu hari ini (00:00 – 23:59)
+ */
+function getTodayRange() {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date();
+  end.setHours(23, 59, 59, 999);
+
+  return { start, end };
+}
+
+/**
+ * Helper: tanggal queue (selalu 00:00)
+ */
+function getQueueDate() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 // =======================
 // CREATE QUEUE (REGISTRATION)
 // =======================
@@ -17,9 +39,6 @@ router.post(
   requireRole(["registration"]),
   async (req, res) => {
     const { mrNumber } = req.body;
-
-    console.log("🔥 NEW QUEUE ROUTE ACTIVE 🔥");
-    console.log("BODY =", req.body);
 
     if (!mrNumber || typeof mrNumber !== "string") {
       throw new AppError("mrNumber is required", 400);
@@ -33,11 +52,32 @@ router.post(
       throw new AppError("Patient not found", 404);
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const queueDate = getQueueDate();
+    const { start, end } = getTodayRange();
 
+    // ❗ Cegah pasien masuk antrian dua kali di hari yang sama
+    const exists = await prisma.queue.findFirst({
+      where: {
+        patientId: patient.id,
+        date: {
+          gte: start,
+          lte: end,
+        },
+      },
+    });
+
+    if (exists) {
+      throw new AppError("Patient already in queue today", 409);
+    }
+
+    // cari nomor terakhir hari ini
     const last = await prisma.queue.findFirst({
-      where: { date: today },
+      where: {
+        date: {
+          gte: start,
+          lte: end,
+        },
+      },
       orderBy: { number: "desc" },
     });
 
@@ -45,10 +85,14 @@ router.post(
 
     const queue = await prisma.queue.create({
       data: {
-        patientId: patient.id,
         number,
-        date: today,
-        createdById: req.user!.id,
+        date: queueDate,
+        patient: {
+          connect: { id: patient.id },
+        },
+        createdBy: {
+          connect: { id: req.user!.id },
+        },
       },
     });
 
@@ -66,21 +110,23 @@ router.post(
   }
 );
 
-
-
 // =======================
-// LIST TODAY QUEUE (PUBLIC INTERNAL)
+// LIST TODAY QUEUE
 // =======================
 router.get(
   "/today",
   authJWT,
   requireRole(["registration", "nurse", "doctor"]),
   async (_req, res) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const { start, end } = getTodayRange();
 
     const queues = await prisma.queue.findMany({
-      where: { date: today },
+      where: {
+        date: {
+          gte: start,
+          lte: end,
+        },
+      },
       include: {
         patient: true,
         createdBy: {
@@ -96,7 +142,6 @@ router.get(
     });
   }
 );
-
 
 // =======================
 // CALL QUEUE (NURSE)
@@ -115,10 +160,7 @@ router.patch(
       where: { id: queueId },
     });
 
-    if (!queue) {
-      throw new AppError("Queue not found", 404);
-    }
-
+    if (!queue) throw new AppError("Queue not found", 404);
     if (queue.status !== "WAITING") {
       throw new AppError("Queue is not in WAITING state", 400);
     }
@@ -174,10 +216,7 @@ router.patch(
       where: { id: queueId },
     });
 
-    if (!queue) {
-      throw new AppError("Queue not found", 404);
-    }
-
+    if (!queue) throw new AppError("Queue not found", 404);
     if (queue.status !== "CALLED") {
       throw new AppError("Queue is not in CALLED state", 400);
     }
@@ -234,9 +273,7 @@ router.get(
       include: { patient: true },
     });
 
-    if (!queue) {
-      throw new AppError("Queue not found", 404);
-    }
+    if (!queue) throw new AppError("Queue not found", 404);
 
     res.json({
       success: true,
@@ -244,7 +281,6 @@ router.get(
     });
   }
 );
-
 
 // =======================
 // SUMMARY TODAY
@@ -254,13 +290,18 @@ router.get(
   authJWT,
   requireRole(["admin", "registration", "nurse", "doctor"]),
   async (_req, res) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const { start, end } = getTodayRange();
 
     const [waiting, called, done] = await Promise.all([
-      prisma.queue.count({ where: { date: today, status: "WAITING" } }),
-      prisma.queue.count({ where: { date: today, status: "CALLED" } }),
-      prisma.queue.count({ where: { date: today, status: "DONE" } }),
+      prisma.queue.count({
+        where: { date: { gte: start, lte: end }, status: "WAITING" },
+      }),
+      prisma.queue.count({
+        where: { date: { gte: start, lte: end }, status: "CALLED" },
+      }),
+      prisma.queue.count({
+        where: { date: { gte: start, lte: end }, status: "DONE" },
+      }),
     ]);
 
     res.json({
@@ -274,6 +315,5 @@ router.get(
     });
   }
 );
-
 
 export default router;

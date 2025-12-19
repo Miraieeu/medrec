@@ -12,14 +12,9 @@ export function setApiToken(token: string) {
  * Wrapper fetch ke backend Express
  */
 export async function apiFetch(path: string, options: RequestInit = {}) {
-  // selalu ambil token terbaru
-  const tokenRes = await fetch("/api/auth/exchange");
-
-  if (!tokenRes.ok) {
-    throw new Error("Not authenticated");
+  if (!apiToken) {
+    console.warn("⚠️ apiFetch dipanggil TANPA token", path);
   }
-
-  const { token } = await tokenRes.json();
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}${path}`,
@@ -27,7 +22,7 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
       ...options,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        ...(apiToken ? { Authorization: `Bearer ${apiToken}` } : {}),
         ...(options.headers || {}),
       },
     }

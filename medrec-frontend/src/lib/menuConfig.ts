@@ -17,6 +17,7 @@ export const menuConfig: Record<Role, MenuItem[]> = {
   ],
   registration: [
     { label: "Dashboard", path: "/registration" },
+    { label: "Cari Pasien", path: "/registration/search-patient" },
     { label: "Pendaftaran Pasien", path: "/registration/patient" },
     { label: "Antrian", path: "/registration/queue" },
   ],

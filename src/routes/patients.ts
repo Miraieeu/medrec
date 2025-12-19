@@ -5,6 +5,34 @@ import { generateMRN } from "../utils/mrn";
 import { AppError } from "../errors/AppError";
 
 const router = Router();
+function parseDob(dob: string): Date {
+  // harus DD/MM/YYYY
+  const match = dob.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) {
+    throw new AppError("DOB format must be DD/MM/YYYY", 400);
+  }
+
+  const [, day, month, year] = match;
+
+  const date = new Date(
+    Number(year),
+    Number(month) - 1,
+    Number(day)
+  );
+  
+
+  // validasi ulang (JS suka auto-correct tanggal)
+  if (
+    date.getFullYear() !== Number(year) ||
+    date.getMonth() !== Number(month) - 1 ||
+    date.getDate() !== Number(day)
+  ) {
+    throw new AppError("Invalid DOB value", 400);
+  }
+
+  return date;
+}
+
 
 /**
  * @swagger
@@ -62,24 +90,35 @@ router.get("/search", async (req, res) => {
 router.post("/", async (req, res) => {
   const { name, nik, dob, address } = req.body;
 
-  // 🔍 Validasi input
   if (!name || !nik || !dob || !address) {
-    throw new AppError("All fields are required", 400);
+    throw new AppError("Harus diisi semua!", 400);
+  }
+  console.log("RAW DOB FROM CLIENT =", dob, typeof dob);
+
+  if (!/^\d{16}$/.test(nik)) {
+    throw new AppError("NIK harus 16 digit!", 400);
   }
 
-  if (nik.length !== 16) {
-    throw new AppError("Invalid NIK format", 400);
+  // ⬇️ VALIDASI & PARSE DOB (SATU-SATUNYA SUMBER KEBENARAN)
+  const dobDate = parseDob(dob);
+  console.log("PARSED DOB =", dobDate);
+
+  // 🔒 blok tanggal masa depan
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (dobDate > today) {
+    throw new AppError("Tanggal lahir tidak boleh di masa depan", 400);
   }
 
   const nikHash = crypto.createHash("sha256").update(nik).digest("hex");
 
-  // ❗ Cegah duplikasi NIK
   const exists = await prisma.patient.findUnique({
     where: { nikHash },
   });
 
   if (exists) {
-    throw new AppError("Patient with this NIK already exists", 409);
+    throw new AppError("Pasien dengan NIK ini sudah ada", 409);
   }
 
   const count = await prisma.patient.count();
@@ -89,7 +128,7 @@ router.post("/", async (req, res) => {
       name,
       nik,
       nikHash,
-      dob: new Date(dob),
+      dob: dobDate, // ✅ VALID DATE
       address,
       medicalRecordNumber: generateMRN(count + 1),
     },
@@ -100,6 +139,8 @@ router.post("/", async (req, res) => {
     data: patient,
   });
 });
+
+
 
 /**
  * @swagger

@@ -12,6 +12,7 @@ type Queue = {
   status: "WAITING" | "CALLED" | "DONE";
   patient: {
     name: string;
+    medicalRecordNumber: string;
   };
 };
 
@@ -22,10 +23,11 @@ type QueueTodayResponse = {
 
 export default function RegistrationQueuePage() {
   const [queues, setQueues] = useState<Queue[]>([]);
-  const [mrDigits, setMrDigits] = useState(""); // ⬅️ hanya angka
+  const [mrDigits, setMrDigits] = useState("");
 
-  async function load() {
+  async function loadQueues() {
     const res = (await apiFetch("/api/queues/today")) as QueueTodayResponse;
+    console.log("📦 QUEUES =", res.data);
     setQueues(res.data);
   }
 
@@ -35,52 +37,53 @@ export default function RegistrationQueuePage() {
       return;
     }
 
-    // bentuk final MR number
     const mrNumber = `MR-${mrDigits.padStart(6, "0")}`;
     console.log("REQ BODY =", { mrNumber });
+
     await apiFetch("/api/queues", {
       method: "POST",
       body: JSON.stringify({ mrNumber }),
     });
 
     setMrDigits("");
-    load();
+    await loadQueues(); // ✅ FIX
   }
 
+  // ✅ LOAD DATA SAAT PAGE DIBUKA
   useEffect(() => {
-    load();
+    loadQueues();
   }, []);
 
   return (
-  <ProtectedRoute allowedRoles={["registration"]}>
-    <DashboardLayout title="Antrian Pasien">
-      {/* INPUT MR NUMBER */}
-      <div className="mb-6 flex items-center gap-2">
-        <span className="rounded border bg-gray-100 px-3 py-2 text-gray-600">
-          MR-
-        </span>
+    <ProtectedRoute allowedRoles={["registration"]}>
+      <DashboardLayout title="Antrian Pasien">
+        {/* INPUT MR */}
+        <div className="mb-6 flex items-center gap-2">
+          <span className="rounded border bg-gray-100 px-3 py-2 text-gray-600">
+            MR-
+          </span>
 
-        <input
-          className="border p-2 w-40"
-          placeholder="000123"
-          value={mrDigits}
-          onChange={(e) => {
-            // hanya izinkan angka
-            const digits = e.target.value.replace(/\D/g, "");
-            setMrDigits(digits);
-          }}
-        />
+          <input
+            className="border p-2 w-40"
+            placeholder="000123"
+            value={mrDigits}
+            onChange={(e) => {
+              const digits = e.target.value.replace(/\D/g, "");
+              setMrDigits(digits);
+            }}
+          />
 
-        <button
-          onClick={createQueue}
-          className="bg-blue-600 px-4 py-2 text-white"
-        >
-          Tambah
-        </button>
-      </div>
+          <button
+            onClick={createQueue}
+            className="bg-blue-600 px-4 py-2 text-white"
+          >
+            Tambah
+          </button>
+        </div>
 
-      {/* QUEUE TABLE */}
-      <QueueTable queues={queues} role="registration" />
-    </DashboardLayout>
-  </ProtectedRoute>
-);}
+        {/* TABLE */}
+        <QueueTable queues={queues} role="registration" />
+      </DashboardLayout>
+    </ProtectedRoute>
+  );
+}

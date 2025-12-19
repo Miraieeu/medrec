@@ -1,37 +1,51 @@
 "use client";
 
 import { SessionProvider, useSession } from "next-auth/react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { setApiToken } from "@/lib/api";
 
 function ApiTokenBridge() {
- 
   const { data: session, status } = useSession();
+  const exchangedRef = useRef(false); // ⬅️ cegah double exchange
 
   useEffect(() => {
-    console.group("🔐 SESSION DEBUG");
-    console.log("status =", status);
-    console.log("user =", session?.user);
-    console.log("role =", (session?.user as any)?.role);
-    console.groupEnd();
-     if (status !== "authenticated") {
-    setApiToken('null'); // 🔥 PENTING
-    return;
-  }
+    // ❌ belum login → jangan apa-apa
+    if (status !== "authenticated") return;
 
-    console.log("✅ SESSION OK, EXCHANGE TOKEN");
+    // ❌ sudah pernah exchange → stop
+    if (exchangedRef.current) return;
 
-     fetch("/api/auth/exchange")
-    .then(res => res.json())
-    .then(data => {
-      setApiToken(data.token);
-    console.log("✅ API TOKEN =", data.token);
+    // ❌ email wajib ada
+    if (!session?.user?.email) {
+      console.warn("⚠️ SESSION TANPA EMAIL");
+      return;
+    }
 
+    exchangedRef.current = true;
+
+    console.log("🔁 EXCHANGE API TOKEN for", session.user.email);
+
+    fetch("/api/auth/exchange", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: session.user.email }),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log("✅ API TOKEN SET");
+        setApiToken(data.token);
       })
       .catch((err) => {
-        console.error("❌ TOKEN EXCHANGE ERROR", err);
+        console.error("❌ TOKEN EXCHANGE FAILED", err);
+        exchangedRef.current = false; // allow retry
       });
-  }, [status]);
+  }, [status, session]);
 
   return null;
 }
