@@ -2,62 +2,58 @@
 
 import { SessionProvider, useSession } from "next-auth/react";
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { setApiToken } from "@/lib/api";
 
-function ApiTokenBridge() {
+function ApiTokenSync() {
   const { data: session, status } = useSession();
-  const exchangedRef = useRef(false); // ⬅️ cegah double exchange
+  const pathname = usePathname();
+
+  const exchanging = useRef(false);
 
   useEffect(() => {
-    // ❌ belum login → jangan apa-apa
     if (status !== "authenticated") return;
+    if (!session?.user?.email) return;
 
-    // ❌ sudah pernah exchange → stop
-    if (exchangedRef.current) return;
+    const token = localStorage.getItem("apiToken");
 
-    // ❌ email wajib ada
-    if (!session?.user?.email) {
-      console.warn("⚠️ SESSION TANPA EMAIL");
-      return;
-    }
+    // ✅ kalau token sudah ada → JANGAN ganggu
+    if (token) return;
 
-    exchangedRef.current = true;
+    if (exchanging.current) return;
+    exchanging.current = true;
 
-    console.log("🔁 EXCHANGE API TOKEN for", session.user.email);
+    console.log("🔁 TOKEN EXCHANGE @", pathname);
 
     fetch("/api/auth/exchange", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: session.user.email }),
     })
-      .then(async (res) => {
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(text);
-        }
+      .then((res) => {
+        if (!res.ok) throw new Error("Exchange failed");
         return res.json();
       })
       .then((data) => {
-        console.log("✅ API TOKEN SET");
-        setApiToken(data.token);
-      })
+  console.log("✅ API TOKEN =", data.token);
+  setApiToken(data.token);
+
+})
       .catch((err) => {
-        console.error("❌ TOKEN EXCHANGE FAILED", err);
-        exchangedRef.current = false; // allow retry
+        console.error("❌ EXCHANGE ERROR", err);
+      })
+      .finally(() => {
+        exchanging.current = false;
       });
-  }, [status, session]);
+  }, [status, session?.user?.email, pathname]);
 
   return null;
 }
 
-export default function Providers({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
-      <ApiTokenBridge />
+      <ApiTokenSync />
       {children}
     </SessionProvider>
   );

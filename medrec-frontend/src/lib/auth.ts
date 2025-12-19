@@ -9,6 +9,7 @@ export type Session = {
   role: Role;
 };
 
+
 export function getSession(): Session | null {
   if (typeof window === "undefined") return null;
 

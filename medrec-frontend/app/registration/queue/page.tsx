@@ -6,6 +6,9 @@ import QueueTable from "@/components/QueueTable";
 import DashboardLayout from "@/components/DashboardLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
+
+
+
 type Queue = {
   id: number;
   number: number;
@@ -26,6 +29,9 @@ export default function RegistrationQueuePage() {
   const [mrDigits, setMrDigits] = useState("");
 
   async function loadQueues() {
+    useEffect(() => {
+  loadQueues();
+  }, []);
     const res = (await apiFetch("/api/queues/today")) as QueueTodayResponse;
     console.log("📦 QUEUES =", res.data);
     setQueues(res.data);

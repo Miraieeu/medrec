@@ -3,7 +3,8 @@ import { AppError } from "../errors/AppError";
 
 export function authJWT(req, _res, next) {
   const auth = req.headers.authorization;
-
+  console.log("🛡️ AUTH JWT HIT");
+  console.log("Authorization =", req.headers.authorization);
   if (!auth || !auth.startsWith("Bearer ")) {
     throw new AppError("Missing token", 401);
   }
@@ -37,3 +38,27 @@ export function authJWT(req, _res, next) {
     throw new AppError("Invalid token", 401);
   }
 }
+export function waitForApiToken(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    let tries = 0;
+
+    const interval = setInterval(() => {
+      const token = getApiToken(); // ⬅️ ambil ulang dari storage
+      if (token) {
+        clearInterval(interval);
+        resolve();
+      }
+
+      tries++;
+      if (tries > 30) {
+        clearInterval(interval);
+        reject(new Error("API token not ready"));
+      }
+    }, 100);
+  });
+}
+function getApiToken(): string | null {
+  const token = process.env.API_TOKEN;
+  return token || null;
+}
+

@@ -1,4 +1,5 @@
 import { prisma } from "../prisma";
+import { AppError } from "../errors/AppError";
 
 /**
  * Pastikan medical record ada & masih bisa diedit
@@ -10,7 +11,9 @@ export async function assertRecordEditable(recordId: number) {
   });
 
   if (!record) {
-    throw new Error("Medical record not found");
+    throw new Error(
+      "Medical record not found. Queue may not have been called yet."
+    );
   }
 
   if (record.status === "FINAL") {
@@ -19,3 +22,4 @@ export async function assertRecordEditable(recordId: number) {
 
   return record;
 }
+

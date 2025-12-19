@@ -1,3 +1,5 @@
+import { useRouter } from "next/navigation";
+
 type Queue = {
   id: number;
   number: number;
@@ -8,108 +10,75 @@ type Queue = {
   };
 };
 
-type Props = {
-  queues?: Queue[];
-  role: "registration" | "nurse" | "doctor";
-  onCall?: (queueId: number) => void;
-  onDone?: (queueId: number) => void;
-};
-
 export default function QueueTable({
-  queues = [],
-  role,
-  onCall,
-  onDone,
-}: Props) {
+  queues,
+}: {
+  queues: Queue[];
+}) {
+  const router = useRouter();
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse border text-sm">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="border px-3 py-2 w-16 text-center">
-              No
-            </th>
-            <th className="border px-3 py-2 w-40 text-center">
-              No. RM
-            </th>
-            <th className="border px-3 py-2 text-left">
-              Nama Pasien
-            </th>
-            <th className="border px-3 py-2 w-32 text-center">
-              Status
-            </th>
+    <table className="w-full border border-collapse">
+      <thead>
+        <tr className="bg-gray-100">
+          <th className="border px-2 py-1">No</th>
+          <th className="border px-2 py-1">No RM</th>
+          <th className="border px-2 py-1">Nama Pasien</th>
+          <th className="border px-2 py-1">Status</th>
+          <th className="border px-2 py-1">Aksi</th>
+        </tr>
+      </thead>
 
-            {(role === "nurse" || role === "doctor") && (
-              <th className="border px-3 py-2 w-32 text-center">
-                Aksi
-              </th>
-            )}
-          </tr>
-        </thead>
+      <tbody>
+        {queues.map((q, idx) => (
+          <tr key={q.id}>
+            <td className="border px-2 py-1 text-center">
+              {idx + 1}
+            </td>
 
-        <tbody>
-          {queues.length === 0 && (
-            <tr>
-              <td
-                colSpan={role === "registration" ? 4 : 5}
-                className="border px-3 py-4 text-center text-gray-500"
-              >
-                Belum ada antrian
-              </td>
-            </tr>
-          )}
+            <td className="border px-2 py-1">
+              {q.patient.medicalRecordNumber}
+            </td>
 
-          {queues.map((q) => (
-            <tr
-              key={q.id}
-              className="hover:bg-gray-50 transition"
-            >
-              {/* No Antrian */}
-              <td className="border px-3 py-2 text-center">
-                {q.number}
-              </td>
+            <td className="border px-2 py-1">
+              {q.patient.name}
+            </td>
 
-              {/* Nomor RM */}
-              <td className="border px-3 py-2 text-center font-mono">
-                {q.patient.medicalRecordNumber}
-              </td>
+            <td className="border px-2 py-1 text-center font-semibold">
+              {q.status}
+            </td>
 
-              {/* Nama Pasien */}
-              <td className="border px-3 py-2">
-                {q.patient.name}
-              </td>
-
-              {/* Status */}
-              <td className="border px-3 py-2 text-center font-semibold">
-                {q.status}
-              </td>
-
-              {/* AKSI */}
-              {(role === "nurse" || role === "doctor") && (
-                <td className="border px-3 py-2 text-center">
-                  {role === "nurse" && q.status === "WAITING" && (
-                    <button
-                      onClick={() => onCall?.(q.id)}
-                      className="rounded bg-blue-600 px-3 py-1 text-white text-sm hover:bg-blue-700"
-                    >
-                      CALL
-                    </button>
-                  )}
-
-                  {role === "doctor" && q.status === "CALLED" && (
-                    <button
-                      onClick={() => onDone?.(q.id)}
-                      className="rounded bg-green-600 px-3 py-1 text-white text-sm hover:bg-green-700"
-                    >
-                      DONE
-                    </button>
-                  )}
-                </td>
+            <td className="border px-2 py-1 text-center">
+              {/* WAITING → CALL */}
+              {q.status === "WAITING" && (
+                <button
+                  onClick={() =>
+                    router.push(`/nurse/queue/${q.id}/call`)
+                  }
+                  className="text-blue-600 hover:underline"
+                >
+                  Panggil
+                </button>
               )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+
+              {/* CALLED → SOAP */}
+              {q.status === "CALLED" && (
+                <button
+                  onClick={() =>
+                    router.push(`/nurse/records/${q.id}`)
+                  }
+                  className="text-green-600 hover:underline"
+                >
+                  SOAP
+                </button>
+              )}
+
+              {/* DONE → NONE */}
+              {q.status === "DONE" && <span>—</span>}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }

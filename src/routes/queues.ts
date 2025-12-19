@@ -128,7 +128,15 @@ router.get(
         },
       },
       include: {
-        patient: true,
+        patient: {
+          include: {
+            records: {
+              where: { status: "DRAFT" },
+              orderBy: { createdAt: "desc" },
+              take: 1,
+            },
+          },
+        },
         createdBy: {
           select: { id: true, name: true, role: true },
         },
@@ -143,6 +151,9 @@ router.get(
   }
 );
 
+
+
+
 // =======================
 // CALL QUEUE (NURSE)
 // =======================
@@ -152,9 +163,6 @@ router.patch(
   requireRole(["nurse"]),
   async (req, res) => {
     const queueId = Number(req.params.id);
-    if (isNaN(queueId)) {
-      throw new AppError("Invalid queue id", 400);
-    }
 
     const queue = await prisma.queue.findUnique({
       where: { id: queueId },
@@ -198,6 +206,7 @@ router.patch(
     });
   }
 );
+
 
 // =======================
 // DONE QUEUE (DOCTOR)
@@ -287,8 +296,7 @@ router.get(
 // =======================
 router.get(
   "/summary/today",
-  authJWT,
-  requireRole(["admin", "registration", "nurse", "doctor"]),
+
   async (_req, res) => {
     const { start, end } = getTodayRange();
 
