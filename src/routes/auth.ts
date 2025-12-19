@@ -1,41 +1,9 @@
 import { Router } from "express";
-import jwt from "jsonwebtoken";
-import { prisma } from "../prisma";
+import { login } from "../services/auth.service";
 
 const router = Router();
+// Router Login
 
-/**
- * EXCHANGE NEXTAUTH SESSION → API TOKEN
- */
-router.post("/exchange", async (req, res) => {
-  const { email } = req.body;
-
-  if (!email) {
-    return res.status(400).json({ error: "email required" });
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email },
-  });
-
-  if (!user) {
-    return res.status(401).json({ error: "User not found" });
-  }
-
-  const token = jwt.sign(
-    {
-      id: user.id,
-      role: user.role,
-      email: user.email,
-    },
-    process.env.JWT_SECRET!,
-    { expiresIn: "1h" }
-  );
-
-  res.json({
-    token,
-    role: user.role,
-  });
-});
+router.post("/login",login);
 
 export default router;

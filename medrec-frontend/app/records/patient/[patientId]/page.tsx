@@ -62,7 +62,7 @@ export default function PatientRecordsPage() {
                 </td>
                 <td className="border px-3 py-2 text-center">
                   <button
-                    onClick={() => router.push(`/nurse/records/${r.id}`)}
+                    onClick={() => router.push(`/records/${r.id}`)}
                     className="text-blue-600 hover:underline"
                   >
                     Lihat

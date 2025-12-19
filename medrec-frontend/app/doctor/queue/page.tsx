@@ -56,31 +56,29 @@ export default function DoctorQueuePage() {
 
         {/* ACTION */}
         <div className="mt-4 space-y-2">
-          {queues.map((q) => {
-  const recordId = q.patient.records?.[0]?.id;
+          {queues.map((q) => (
+            <div
+              key={q.id}
+              className="flex items-center justify-between border p-3 rounded"
+            >
+              <div>
+                <div className="font-medium">
+                  {q.patient.medicalRecordNumber} — {q.patient.name}
+                </div>
+                <div className="text-sm text-gray-500">
+                  No Antrian: {q.number}
+                </div>
+              </div>
 
-  return (
-    <tr key={q.id}>
-      <td>{q.number}</td>
-      <td>{q.patient.name}</td>
-      <td>{q.status}</td>
-
-      <td>
-        {recordId ? (
-          <button
-            onClick={() => router.push(`/nurse/records/${recordId}`)}
-            className="text-blue-600 hover:underline"
-          >
-            SOAP
-          </button>
-        ) : (
-          <span className="text-gray-400">Belum dipanggil</span>
-        )}
-      </td>
-    </tr>
-  );
-})}
-
+              <button
+                onClick={() => doneQueue(q.id)}
+                disabled={loadingId === q.id}
+                className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+              >
+                {loadingId === q.id ? "Menyelesaikan..." : "DONE"}
+              </button>
+            </div>
+          ))}
         </div>
       </DashboardLayout>
     </ProtectedRoute>

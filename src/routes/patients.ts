@@ -93,15 +93,14 @@ router.post("/", async (req, res) => {
   if (!name || !nik || !dob || !address) {
     throw new AppError("Harus diisi semua!", 400);
   }
-  console.log("RAW DOB FROM CLIENT =", dob, typeof dob);
-
+ 
   if (!/^\d{16}$/.test(nik)) {
     throw new AppError("NIK harus 16 digit!", 400);
   }
 
   // ⬇️ VALIDASI & PARSE DOB (SATU-SATUNYA SUMBER KEBENARAN)
   const dobDate = parseDob(dob);
-  console.log("PARSED DOB =", dobDate);
+ 
 
   // 🔒 blok tanggal masa depan
   const today = new Date();

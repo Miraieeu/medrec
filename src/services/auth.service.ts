@@ -1,59 +1,42 @@
-import bcrypt from "bcryptjs";
-import jwt, { Secret } from "jsonwebtoken";
-import { prisma } from "../prisma";
+import jwt from "jsonwebtoken";
 import { AppError } from "../errors/AppError";
+import { prisma } from "../prisma";
+import bcrypt from "bcrypt";
 
-export async function login(email: string, password: string) {
-  // 1️⃣ Validasi input
+export async function login(req, res) {
+  const { email, password } = req.body;
+
   if (!email || !password) {
-    throw new AppError("Email and password are required", 400);
+    throw new AppError("Email and password required", 400);
   }
 
-  // 2️⃣ Cari user
   const user = await prisma.user.findUnique({
     where: { email },
   });
 
-  // ❗ Jangan bocorkan apakah email atau password yang salah
   if (!user) {
-    throw new AppError("Invalid email or password", 401);
+    throw new AppError("Invalid credentials", 401);
   }
 
-  // 3️⃣ Cek password
-  const validPassword = await bcrypt.compare(password, user.password);
-  if (!validPassword) {
-    throw new AppError("Invalid email or password", 401);
+  const passwordValid = await bcrypt.compare(password, user.password);
+  if (!passwordValid) {
+    throw new AppError("Invalid credentials", 401);
   }
 
-  // 4️⃣ Pastikan JWT_SECRET ada
-  if (!process.env.JWT_SECRET) {
-    throw new AppError("Server misconfiguration", 500);
-  }
-
-  const JWT_SECRET = process.env.JWT_SECRET as Secret;
-
-  // 5️⃣ Generate token
-  const token = jwt.sign(
+  // 🔐 GENERATE JWT (SATU-SATUNYA TEMPAT SIGN)
+  const accessToken = jwt.sign(
     {
-      id: String(user.id),
-      role: String(user.role),
+      sub: user.id,
+      role: user.role,
+      email: user.email,
     },
-    JWT_SECRET,
+    process.env.JWT_SECRET!,   // ⬅️ INI POIN UTAMA
     {
-      expiresIn: process.env.JWT_EXPIRES_IN || "1d",
-    } as any
+      issuer: "medrec-api",
+      audience: "medrec-client",
+      expiresIn: "15m",
+    }
   );
 
-  // 6️⃣ Response rapi untuk UI
-  return {
-    success: true,
-    data: {
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        role: user.role,
-      },
-    },
-  };
+  return res.json({ accessToken });
 }
