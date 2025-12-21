@@ -1,40 +1,36 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useAuth } from "@/lib/useAuth";
+import type { UserRole } from "@/types/role";
 
 export default function ProtectedRoute({
-  children,
   allowedRoles,
+  children,
 }: {
-  children: React.ReactNode;
-  allowedRoles: string[];
+  allowedRoles: UserRole[];
+  children: ReactNode;
 }) {
-  const { data: session, status } = useSession();
   const router = useRouter();
+  const { ready, authenticated, role } = useAuth();
 
   useEffect(() => {
-    if (status === "loading") return;
+    if (!ready) return;
 
-    if (!session) {
+    if (!authenticated) {
       router.replace("/login");
       return;
     }
 
-    const role = (session.user as any).role;
-    if (!allowedRoles.includes(role)) {
+    if (!role || !allowedRoles.includes(role)) {
       router.replace("/unauthorized");
     }
-  }, [session, status, allowedRoles, router]);
+  }, [ready, authenticated, role]);
 
-  if (status === "loading") {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <span className="text-gray-500">Checking session...</span>
-      </div>
-    );
-  }
+  if (!ready) return null;
+  if (!authenticated) return null;
+  if (!role || !allowedRoles.includes(role)) return null;
 
   return <>{children}</>;
 }

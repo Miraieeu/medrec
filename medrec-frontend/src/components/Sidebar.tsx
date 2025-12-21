@@ -2,42 +2,51 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { menuConfig } from "@/lib/menuConfig";
-
+import { MENU } from "@/config/menu";
+import { useAuth } from "@/lib/useAuth";
+import LogoutButton from "@/components/LogoutButton";
 
 export default function Sidebar() {
-  const { data: session } = useSession();
   const pathname = usePathname();
+  const { role } = useAuth();
 
-  const role = session?.user?.role;
-
-  if (!role) return null;
-
-  const menus = menuConfig[role];
+  const menu = MENU.filter((item) =>
+    role ? item.roles.includes(role) : false
+  );
 
   return (
-    <aside className="w-64 bg-gray-800 text-white min-h-screen">
-      <div className="px-4 py-6 font-bold text-lg border-b border-gray-700">
-        Menu
+    <aside className="flex w-64 flex-col border-r bg-white">
+      {/* LOGO */}
+      <div className="border-b px-6 py-4 text-lg font-bold text-blue-600">
+        MedRec
       </div>
 
-      <nav className="mt-4">
-        <ul className="space-y-1">
-          {menus.map((menu) => (
-            <li key={menu.path}>
-              <Link
-                href={menu.path}
-                className={`block px-4 py-2 text-sm hover:bg-gray-700 ${
-                  pathname === menu.path ? "bg-gray-700" : ""
+      {/* MENU */}
+      <nav className="flex-1 space-y-1 px-4 py-4">
+        {menu.map((item) => {
+          const active = pathname.startsWith(item.href);
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`block rounded px-4 py-2 text-sm font-medium transition
+                ${
+                  active
+                    ? "bg-blue-100 text-blue-700"
+                    : "text-gray-700 hover:bg-gray-100"
                 }`}
-              >
-                {menu.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
+            >
+              {item.label}
+            </Link>
+          );
+        })}
       </nav>
+
+      {/* LOGOUT */}
+      <div className="border-t p-4">
+        <LogoutButton />
+      </div>
     </aside>
   );
 }

@@ -1,4 +1,4 @@
-import { useRouter } from "next/navigation";
+"use client";
 
 type Queue = {
   id: number;
@@ -10,13 +10,21 @@ type Queue = {
   };
 };
 
+type Props = {
+  queues: Queue[];
+
+  // optional actions (diinject dari parent)
+  onCall?: (queueId: number) => void;
+  onSoap?: (queueId: number) => void;
+  onDone?: (queueId: number) => void;
+};
+
 export default function QueueTable({
   queues,
-}: {
-  queues: Queue[];
-}) {
-  const router = useRouter();
-
+  onCall,
+  onSoap,
+  onDone,
+}: Props) {
   return (
     <table className="w-full border border-collapse">
       <thead>
@@ -48,32 +56,34 @@ export default function QueueTable({
               {q.status}
             </td>
 
-            <td className="border px-2 py-1 text-center">
-              {/* WAITING → CALL */}
-              {q.status === "WAITING" && (
+            <td className="border px-2 py-1 text-center space-x-2">
+              {q.status === "WAITING" && onCall && (
                 <button
-                  onClick={() =>
-                    router.push(`/nurse/queue/${q.id}/call`)
-                  }
+                  onClick={() => onCall(q.id)}
                   className="text-blue-600 hover:underline"
                 >
                   Panggil
                 </button>
               )}
 
-              {/* CALLED → SOAP */}
-              {q.status === "CALLED" && (
+              {q.status === "CALLED" && onSoap && (
                 <button
-                  onClick={() =>
-                    router.push(`/nurse/records/${q.id}`)
-                  }
+                  onClick={() => onSoap(q.id)}
                   className="text-green-600 hover:underline"
                 >
                   SOAP
                 </button>
               )}
 
-              {/* DONE → NONE */}
+              {q.status === "CALLED" && onDone && (
+                <button
+                  onClick={() => onDone(q.id)}
+                  className="text-purple-600 hover:underline"
+                >
+                  DONE
+                </button>
+              )}
+
               {q.status === "DONE" && <span>—</span>}
             </td>
           </tr>

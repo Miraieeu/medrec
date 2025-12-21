@@ -1,19 +1,15 @@
 "use client";
 
-import { ReactNode } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import DashboardLayout from "@/components/DashboardLayout";
 
 export default function RegistrationLayout({
   children,
 }: {
-  children: ReactNode;
+  children: React.ReactNode;
 }) {
   return (
     <ProtectedRoute allowedRoles={["registration"]}>
-      <DashboardLayout title="Pendaftaran Pasien">
-        {children}
-      </DashboardLayout>
+      {children}
     </ProtectedRoute>
   );
 }

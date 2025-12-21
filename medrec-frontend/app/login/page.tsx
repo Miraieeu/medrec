@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { login } from "@/services/auth";
+import { decodeJWT } from "@/utils/jwt";
+import { setApiToken } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -9,42 +12,26 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setError(null);
 
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false, // ⛔ jangan auto redirect
-    });
+    try {
+      const { accessToken } = await login(email, password);
 
-    if (res?.error) {
-      setLoading(false);
-      setError("Email atau password salah");
-      return;
-    }
+      // 🔑 simpan token sebelum redirect
+      setApiToken(accessToken);
 
-    /**
-     * ⚠️ PENTING
-     * NextAuth butuh sedikit waktu untuk menulis session cookie
-     * Jadi kita tunggu sebentar lalu ambil session
-     */
-    setTimeout(async () => {
-      const sessionRes = await fetch("/api/auth/session");
-      const session = await sessionRes.json();
+      const payload = decodeJWT(accessToken);
 
-      const role = session?.user?.role;
+      if (!payload?.role) {
+        throw new Error("Invalid authentication token");
+      }
 
-
-      console.log("🔎 SESSION AFTER LOGIN =", session);
-
-      console.log("LOGIN SUCCESS → ROLE =", role);
-
-      switch (role) {
+      switch (payload.role) {
         case "admin":
           router.replace("/admin");
           break;
@@ -60,55 +47,82 @@ export default function LoginPage() {
         default:
           router.replace("/unauthorized");
       }
-    }, 300);
+    } catch (err: any) {
+      setError(
+        err?.message === "UNAUTHORIZED"
+          ? "Email atau password salah"
+          : err?.message || "Login gagal"
+      );
+      setLoading(false);
+    }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <form
-        onSubmit={handleLogin}
-        className="w-full max-w-sm rounded bg-white p-6 shadow"
-      >
-        <h1 className="mb-6 text-center text-xl font-semibold">
-          Login MedRec
-        </h1>
+    <div className="flex min-h-screen items-center justify-center bg-slate-100">
+      <div className="w-full max-w-sm rounded-xl bg-white p-8 shadow-lg">
+        {/* HEADER */}
+        <div className="mb-6 text-center">
+          <h1 className="text-2xl font-bold text-slate-800">
+            MedRec System
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Medical Record Management
+          </p>
+        </div>
 
+        {/* ERROR */}
         {error && (
-          <div className="mb-4 rounded bg-red-100 px-3 py-2 text-sm text-red-700">
+          <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
             {error}
           </div>
         )}
 
-        <div className="mb-4">
-          <input
-            type="email"
-            placeholder="Email"
-            className="w-full rounded border px-3 py-2"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
+        {/* FORM */}
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-slate-700">
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={loading}
+              placeholder="user@medrec.local"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-slate-100"
+            />
+          </div>
 
-        <div className="mb-6">
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full rounded border px-3 py-2"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-slate-700">
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={loading}
+              placeholder="••••••••"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-slate-100"
+            />
+          </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded bg-blue-600 py-2 text-white disabled:opacity-50"
-        >
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-md bg-blue-600 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? "Signing in..." : "Sign In"}
+          </button>
+        </form>
+
+        {/* FOOTER */}
+        <p className="mt-6 text-center text-xs text-slate-400">
+          © {new Date().getFullYear()} MedRec System
+        </p>
+      </div>
     </div>
   );
 }

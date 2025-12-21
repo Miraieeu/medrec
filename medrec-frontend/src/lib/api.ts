@@ -9,7 +9,7 @@ export function getApiToken(): string | null {
   if (typeof window !== "undefined") {
     const stored = localStorage.getItem("apiToken");
     if (stored) {
-      apiToken = stored; // 🔁 restore ke memory
+      apiToken = stored;
       return stored;
     }
   }
@@ -24,51 +24,24 @@ export function setApiToken(token: string) {
   }
 }
 
-// =======================
-// WAIT TOKEN READY
-// =======================
-export function waitForApiToken(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    let tries = 0;
-
-    const interval = setInterval(() => {
-      const token =
-        apiToken ||
-        (typeof window !== "undefined"
-          ? localStorage.getItem("apiToken")
-          : null);
-
-      if (token) {
-        apiToken = token; // 🔥 restore ke memory
-        clearInterval(interval);
-        resolve();
-        return;
-      }
-
-      tries++;
-      if (tries > 30) {
-        clearInterval(interval);
-        reject(new Error("API token not ready"));
-      }
-    }, 100);
-  });
+export function clearApiToken() {
+  apiToken = null;
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("apiToken");
+  }
 }
 
-
 // =======================
-// FETCH WITH TOKEN
+// FETCH WRAPPER
 // =======================
 export async function apiFetch(
   path: string,
   options: RequestInit = {}
 ) {
   const token = getApiToken();
-  console.log("📡 apiFetch");
-  console.log("path =", path);
-  console.log("token =", token);
+
   if (!token) {
-    console.error("❌ apiFetch TANPA token", path);
-    throw new Error("Unauthorized: API token missing");
+    throw new Error("UNAUTHORIZED");
   }
 
   const res = await fetch(
@@ -83,8 +56,14 @@ export async function apiFetch(
     }
   );
 
+  if (res.status === 401) {
+    clearApiToken();
+    throw new Error("UNAUTHORIZED");
+  }
+
   if (!res.ok) {
-    throw new Error(await res.text());
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error || "API Error");
   }
 
   return res.json();

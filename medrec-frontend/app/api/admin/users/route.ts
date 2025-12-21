@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 export async function GET(req: NextRequest) {
   const token = await getToken({
     req,
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: process.env.JWT_SECRET,
   });
 
   if (!token || token.role !== "admin") {
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const token = await getToken({
     req,
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: process.env.JWT_SECRET,
   });
 
   if (!token || token.role !== "admin") {

@@ -1,60 +1,42 @@
 "use client";
 
 import { ReactNode } from "react";
-import { signOut, useSession } from "next-auth/react";
-import Sidebar from "./Sidebar";
+import { useAuth } from "@/lib/useAuth";
+import Sidebar from "@/components/Sidebar";
 
 type Props = {
-  title?: string;
+  title: string;
   children: ReactNode;
 };
 
 export default function DashboardLayout({ title, children }: Props) {
-  const { data: session } = useSession();
-  const user = session?.user as
-    | { email?: string; role?: string }
-    | undefined;
+  const { ready, authenticated, role } = useAuth();
+
+  if (!ready || !authenticated || !role) return null;
 
   return (
-    <div className="flex min-h-screen bg-white">
+    <div className="flex min-h-screen bg-gray-100">
       {/* SIDEBAR */}
       <Sidebar />
 
-      {/* CONTENT */}
-      <main className="flex-1 flex flex-col">
+      {/* MAIN */}
+      <div className="flex flex-1 flex-col">
         {/* HEADER */}
-        <header className="flex items-center justify-between border-b px-6 py-4">
-          <div>
-            {title && (
-              <h1 className="text-lg font-semibold">{title}</h1>
-            )}
-          </div>
+        <header className="flex items-center justify-between border-b bg-white px-6 py-4">
+          <h1 className="text-xl font-semibold text-gray-800">
+            {title}
+          </h1>
 
-          {/* USER INFO */}
-          {user && (
-            <div className="flex items-center gap-4 text-sm">
-              <div className="text-right leading-tight">
-                <div className="font-medium">
-                  {user.email}
-                </div>
-                <div className="text-gray-500 capitalize">
-                  {user.role}
-                </div>
-              </div>
-
-              <button
-                onClick={() => signOut({ callbackUrl: "/login" })}
-                className="rounded border px-3 py-1 text-sm hover:bg-gray-100"
-              >
-                Logout
-              </button>
-            </div>
-          )}
+          <span className="rounded bg-gray-100 px-3 py-1 text-sm text-gray-600">
+            Role: {role}
+          </span>
         </header>
 
-        {/* PAGE CONTENT */}
-        <div className="flex-1 p-6">{children}</div>
-      </main>
+        {/* CONTENT */}
+        <main className="flex-1 p-6">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

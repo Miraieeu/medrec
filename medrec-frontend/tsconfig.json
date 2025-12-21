@@ -1,26 +1,35 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "types": ["next-auth"],
+
     "lib": ["dom", "dom.iterable", "esnext"],
+
     "allowJs": true,
     "skipLibCheck": true,
+
     "strict": true,
     "noEmit": true,
+
     "esModuleInterop": true,
+
     "module": "esnext",
     "moduleResolution": "bundler",
+
     "resolveJsonModule": true,
     "isolatedModules": true,
+
     "jsx": "react-jsx",
     "incremental": true,
-   
-    "baseUrl": ".",                     // 👈 INI YANG HILANG
+
+    "baseUrl": ".",
     "paths": {
-      
       "@/*": ["./*"],
       "@/components/*": ["src/components/*"],
-      "@/lib/*": ["src/lib/*"]                    // 👈 alias root project
+      "@/lib/*": ["src/lib/*"],
+      "@/services/*": ["services/*"],
+      "@/utils/*": ["utils/*"],
+      "@/config/*": ["src/config/*"],
+      "@/types/*": ["src/types/*"]
     },
 
     "plugins": [
@@ -29,14 +38,14 @@
       }
     ]
   },
+
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "types/**/*.d.ts",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    ".next/dev/types/**/*.ts"
   ],
+
   "exclude": ["node_modules"]
 }

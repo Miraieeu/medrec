@@ -1,57 +1,53 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { apiFetch } from "@/lib/api";
+import { useRouter } from "next/navigation";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardLayout from "@/components/DashboardLayout";
 import QueueTable from "@/components/QueueTable";
+import { apiFetch } from "@/lib/api";
+
+type Queue = {
+  id: number;
+  number: number;
+  status: "WAITING" | "CALLED" | "DONE";
+  patient: {
+    name: string;
+    medicalRecordNumber: string;
+  };
+};
 
 export default function NurseQueuePage() {
-  const [queues, setQueues] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const [queues, setQueues] = useState<Queue[]>([]);
+
+  async function load() {
+    const res = await apiFetch("/api/nurse/queues/today");
+    setQueues(res.data);
+  }
+
+  async function callQueue(queueId: number) {
+    await apiFetch(`/api/nurse/queues/${queueId}/call`, {
+      method: "PATCH",
+    });
+    await load();
+  }
 
   useEffect(() => {
-    // ⛔ JANGAN FETCH SEBELUM TOKEN ADA
-    if (!hasApiToken()) {
-      console.log("⏳ API token belum siap, tunggu...");
-      return;
-    }
-
-    let cancelled = false;
-
-    async function loadQueues() {
-      try {
-        const res = await apiFetch("/api/queues/today");
-        if (!cancelled) {
-          setQueues(res.data);
-        }
-      } catch (err) {
-        console.error("❌ loadQueues error", err);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    loadQueues();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []); // ⬅️ PENTING: tetap kosong
+    load();
+  }, []);
 
   return (
     <ProtectedRoute allowedRoles={["nurse"]}>
-      <DashboardLayout title="Antrian Pasien">
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
-          <QueueTable queues={queues} role="nurse" />
-        )}
+      <DashboardLayout title="Antrian Pasien (Nurse)">
+        <QueueTable
+          queues={queues}
+          onCall={callQueue}
+          onSoap={(queueId) =>
+            router.push(`/nurse/records/${queueId}`)
+          }
+        />
       </DashboardLayout>
     </ProtectedRoute>
   );
-}
-
-function hasApiToken() {
-  return typeof window !== "undefined" && !!localStorage.getItem("apiToken");
 }

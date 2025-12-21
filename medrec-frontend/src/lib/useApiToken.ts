@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+
 
 export function useApiToken() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = ();
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {

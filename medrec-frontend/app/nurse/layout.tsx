@@ -4,14 +4,14 @@ import { ReactNode } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardLayout from "@/components/DashboardLayout";
 
-export default function RegistrationLayout({
+export default function NurseLayout({
   children,
 }: {
   children: ReactNode;
 }) {
   return (
-    <ProtectedRoute allowedRoles={["registration"]}>
-      <DashboardLayout title="Pendaftaran Pasien">
+    <ProtectedRoute allowedRoles={["nurse"]}>
+      <DashboardLayout title="Dashboard Nurse">
         {children}
       </DashboardLayout>
     </ProtectedRoute>
