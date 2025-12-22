@@ -33,32 +33,33 @@ function getQueueDate() {
 // =======================
 // CREATE QUEUE (REGISTRATION)
 // =======================
+
 router.post(
   "/",
   authJWT,
   requireRole(["registration"]),
   async (req, res) => {
-    const { mrNumber } = req.body;
+    const { patientId } = req.body;
 
-    if (!mrNumber || typeof mrNumber !== "string") {
-      throw new AppError("mrNumber is required", 400);
+    if (!patientId || typeof patientId !== "number") {
+      throw new AppError("patientId is required", 400);
     }
 
     const patient = await prisma.patient.findUnique({
-      where: { medicalRecordNumber: mrNumber },
+      where: { id: patientId },
     });
 
     if (!patient) {
       throw new AppError("Patient not found", 404);
     }
 
-    const queueDate = getQueueDate();
     const { start, end } = getTodayRange();
+    const queueDate = getQueueDate();
 
     // ❗ Cegah pasien masuk antrian dua kali di hari yang sama
     const exists = await prisma.queue.findFirst({
       where: {
-        patientId: patient.id,
+        patientId,
         date: {
           gte: start,
           lte: end,
@@ -87,12 +88,8 @@ router.post(
       data: {
         number,
         date: queueDate,
-        patient: {
-          connect: { id: patient.id },
-        },
-        createdBy: {
-          connect: { id: req.user!.id },
-        },
+        patientId: patient.id,
+        createdById: req.user!.id,
       },
     });
 
@@ -109,6 +106,7 @@ router.post(
     });
   }
 );
+
 
 // =======================
 // LIST TODAY QUEUE
@@ -160,7 +158,7 @@ router.get(
 router.patch(
   "/:id/call",
   authJWT,
-  requireRole(["nurse"]),
+  requireRole(["registration"]),
   async (req, res) => {
     const queueId = Number(req.params.id);
 

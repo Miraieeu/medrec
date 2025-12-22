@@ -11,7 +11,7 @@ export type MenuItem = {
 
 export const menuConfig: Record<Role, MenuItem[]> = {
   admin: [
-    { label: "Dashboard", path: "/admin" },
+    { label: "Dashboard Admin", path: "/admin" },
     { label: "Manajemen User", path: "/admin/users" },
     { label: "Audit Log", path: "/admin/audit" },
   ],

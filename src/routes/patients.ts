@@ -121,7 +121,6 @@ router.post("/", async (req, res) => {
   }
 
   const count = await prisma.patient.count();
-
   const patient = await prisma.patient.create({
     data: {
       name,

@@ -3,19 +3,56 @@ import type { UserRole } from "@/types/role";
 export type MenuItem = {
   label: string;
   href: string;
-  roles: UserRole[];
 };
 
-export const MENU: MenuItem[] = [
-  { label: "Antrian", href: "/registration/queue", roles: ["registration"] },
-  { label: "Antrian Nurse", href: "/nurse/queue", roles: ["nurse"] },
-  { label: "Antrian Dokter", href: "/doctor/queue", roles: ["doctor"] },
-  { label: "Admin Panel", href: "/admin", roles: ["admin"] },
-];
+
 
 export const MENU_BY_ROLE: Record<UserRole, MenuItem[]> = {
-  admin: MENU.filter((m) => m.roles.includes("admin")),
-  registration: MENU.filter((m) => m.roles.includes("registration")),
-  nurse: MENU.filter((m) => m.roles.includes("nurse")),
-  doctor: MENU.filter((m) => m.roles.includes("doctor")),
+  admin: [
+    
+    {
+      label: "Audit & Log Check",
+      href: "/admin/audit",
+    },
+    {
+      label: "User Configuration",
+      href: "/admin/users",
+    },
+  ],
+
+  registration: [
+    {
+      label: "Daftar Pasien",
+      href: "/registration/patients",
+    },{
+      label: "Menambahkan Pasien ke Sistem",
+      href: "/registration/search-patient",
+    },
+    {
+      label: "Antrian Pasien",
+      href: "/registration/queue",
+    },
+  ],
+
+  nurse: [
+    {
+      label: "Antrian Pasien",
+      href: "/nurse/queue",
+    },
+    {
+      label: "Cek Rekam Medis",
+      href: "/nurse/records/search",
+    },
+  ],
+
+  doctor: [
+    {
+      label: "Antrian Pasien",
+      href: "/doctor/queue",
+    },
+    {
+      label: "Cek Rekam Medis",
+      href: "/doctor/records/search",
+    },
+  ],
 };

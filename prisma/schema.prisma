@@ -21,15 +21,11 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Dokter → MedicalRecord
   medicalRecords MedicalRecord[] @relation("DoctorRecords")
+  createdQueues  Queue[]         @relation("QueueCreatedBy")
 
-  // Petugas pendaftaran → Queue
-  createdQueues Queue[] @relation("QueueCreatedBy")
-
-  //Audit Log 
   auditLogs AuditLog[]
-  authLogs AuthLog[]
+  authLogs  AuthLog[]
 }
 
 enum Role {
@@ -73,13 +69,11 @@ model MedicalRecord {
   doctorId Int?
   doctor   User? @relation("DoctorRecords", fields: [doctorId], references: [id])
 
-  // Perawat
   subjective  String
   objective   String
   assessment  String
   nursingPlan String
 
-  // Dokter
   pharmacologyPlan    String?
   nonPharmacologyPlan String?
 
@@ -98,7 +92,7 @@ enum MedicalRecordStatus {
 }
 
 //////////////////////
-// QUEUE (ANTRIAN)
+// QUEUE
 //////////////////////
 
 model Queue {
@@ -111,7 +105,6 @@ model Queue {
   patient   Patient @relation(fields: [patientId], references: [id])
   patientId Int
 
-  // siapa petugas pendaftaran
   createdBy   User @relation("QueueCreatedBy", fields: [createdById], references: [id])
   createdById Int
 
@@ -126,6 +119,10 @@ enum QueueStatus {
   DONE
 }
 
+//////////////////////
+// AUDIT LOG
+//////////////////////
+
 model AuditLog {
   id Int @id @default(autoincrement())
 
@@ -133,26 +130,41 @@ model AuditLog {
   user   User @relation(fields: [userId], references: [id])
 
   action   AuditAction
-  entity   String // "Queue" | "MedicalRecord"
+  entity   String
   entityId Int
-
   metadata Json?
 
   createdAt DateTime @default(now())
 }
 
 enum AuditAction {
+  // ===== QUEUE =====
   CREATE_QUEUE
   CALL_QUEUE
   DONE_QUEUE
+
+  // ===== MEDICAL RECORD =====
   UPDATE_NURSING
   FINALIZE_RECORD
-}
-model AuthLog {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
 
+  // ===== USER (ADMIN) =====
+  CREATE_USER
+  UPDATE_USER
+  UPDATE_USER_ROLE
+  DELETE_USER
+}
+
+//////////////////////
+// AUTH LOG (LOGIN / LOGOUT)
+//////////////////////
+
+model AuthLog {
+  id Int @id @default(autoincrement())
+
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id])
+
+  email     String
   action    AuthAction
   ipAddress String?
   userAgent String?
@@ -161,6 +173,7 @@ model AuthLog {
 }
 
 enum AuthAction {
-  LOGIN
+  LOGIN_SUCCESS
+  LOGIN_FAILED
   LOGOUT
 }

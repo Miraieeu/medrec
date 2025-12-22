@@ -3,41 +3,70 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { apiFetch } from "@/lib/api";
+
+type AuthLog = {
+  id: number;
+  action: string;
+  createdAt: string;
+  email: string;
+  user?: {
+    email: string;
+    role: string;
+  };
+};
+
+type AuditLog = {
+  id: number;
+  action: string;
+  entity: string;
+  entityId: number;
+  createdAt: string;
+  user: {
+    email: string;
+    role: string;
+  };
+};
 
 export default function AuditPage() {
-  const [authLogs, setAuthLogs] = useState<any[]>([]);
-  const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [authLogs, setAuthLogs] = useState<AuthLog[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-  fetch("/api/admin/auth-log")
-    .then(async (res) => {
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text);
-      }
-      return res.json();
-    })
-    .then(setAuthLogs)
-    .catch(console.error);
+  useEffect(() => {
+    async function load() {
+      try {
+        const authRes = await apiFetch("/api/admin/authLogs");
+        const auditRes = await apiFetch("/api/admin/auditLogs");
 
-  fetch("/api/admin/audit-log")
-    .then(async (res) => {
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text);
+        setAuthLogs(authRes.data ?? authRes);
+        setAuditLogs(auditRes.data ?? auditRes);
+      } catch (err) {
+        console.error("❌ Failed to load logs:", err);
+      } finally {
+        setLoading(false);
       }
-      return res.json();
-    })
-    .then(setAuditLogs)
-    .catch(console.error);
-}, []);
+    }
+
+    load();
+  }, []);
+
+  if (loading) {
+    return (
+      <ProtectedRoute allowedRoles={["admin"]}>
+
+          <p>Loading logs...</p>
+
+      </ProtectedRoute>
+    );
+  }
 
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
-      <DashboardLayout title="Audit & Log">
+
         {/* AUTH LOG */}
-        <section className="mb-8">
-          <h3 className="mb-2 font-semibold">
+        <section className="mb-10">
+          <h3 className="mb-3 text-lg font-semibold">
             Auth Log (Login / Logout)
           </h3>
 
@@ -57,10 +86,10 @@ useEffect(() => {
                     {new Date(log.createdAt).toLocaleString()}
                   </td>
                   <td className="border p-2">
-                    {log.user.email}
+                    {log.user?.email ?? log.email}
                   </td>
                   <td className="border p-2">
-                    {log.user.role}
+                    {log.user?.role ?? "-"}
                   </td>
                   <td className="border p-2">
                     {log.action}
@@ -71,9 +100,9 @@ useEffect(() => {
           </table>
         </section>
 
-        {/* DOMAIN AUDIT */}
+        {/* AUDIT LOG */}
         <section>
-          <h3 className="mb-2 font-semibold">
+          <h3 className="mb-3 text-lg font-semibold">
             Audit Log (Aktivitas Klinik)
           </h3>
 
@@ -110,7 +139,7 @@ useEffect(() => {
             </tbody>
           </table>
         </section>
-      </DashboardLayout>
+
     </ProtectedRoute>
   );
 }

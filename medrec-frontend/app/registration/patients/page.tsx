@@ -45,7 +45,7 @@ export default function RegistrationPatientPage() {
   const [loading, setLoading] = useState(false);
 
   // =======================
-  // VALIDASI NIK REAL-TIME
+  // VALIDASI NIK
   // =======================
   async function handleNikChange(value: string) {
     const digits = value.replace(/\D/g, "").slice(0, 16);
@@ -57,10 +57,12 @@ export default function RegistrationPatientPage() {
     }
 
     try {
-      await apiFetch(`/api/patients/by-nik?nik=${digits}`);
+      await apiFetch(
+        `/api/registration/patients/by-nik?nik=${digits}`
+      );
       setNikError("NIK sudah terdaftar");
     } catch {
-      setNikError(null); // aman
+      setNikError(null); // belum terdaftar
     }
   }
 
@@ -86,7 +88,7 @@ export default function RegistrationPatientPage() {
     setLoading(true);
 
     try {
-      await apiFetch("/api/patients", {
+      await apiFetch("/api/registration/patients", {
         method: "POST",
         body: JSON.stringify(form),
       });
@@ -94,7 +96,7 @@ export default function RegistrationPatientPage() {
       alert("Pasien berhasil didaftarkan");
       setForm({ name: "", nik: "", dob: "", address: "" });
     } catch (e: any) {
-      alert(e.message);
+      alert(e.message || "Gagal mendaftarkan pasien");
     } finally {
       setLoading(false);
     }
@@ -109,7 +111,7 @@ export default function RegistrationPatientPage() {
         <div className="max-w-xl space-y-4">
           {/* NAMA */}
           <input
-            className="w-full border p-2"
+            className="w-full rounded border p-2"
             placeholder="Nama Lengkap"
             value={form.name}
             onChange={(e) =>
@@ -119,7 +121,7 @@ export default function RegistrationPatientPage() {
 
           {/* NIK */}
           <input
-            className="w-full border p-2"
+            className="w-full rounded border p-2"
             placeholder="NIK (16 digit)"
             value={form.nik}
             onChange={(e) => handleNikChange(e.target.value)}
@@ -128,69 +130,44 @@ export default function RegistrationPatientPage() {
             <p className="text-sm text-red-600">{nikError}</p>
           )}
 
-          {/* DATE OF BIRTH */}
+          {/* TANGGAL LAHIR */}
           <div className="relative">
-            {/* INPUT TEKS */}
             <input
               type="text"
-              className="w-full border p-2 pr-12"
+              className="w-full rounded border p-2 pr-12"
               placeholder="DD/MM/YYYY"
               value={form.dob}
               onChange={(e) => {
                 let v = e.target.value.replace(/[^\d/]/g, "");
-
                 if (v.length === 2 || v.length === 5) {
                   if (!v.endsWith("/")) v += "/";
                 }
-
                 if (v.length <= 10) {
                   setForm({ ...form, dob: v });
                 }
               }}
             />
 
-            {/* INPUT DATE (NATIVE CALENDAR) */}
             <input
               type="date"
-              max={new Date().toISOString().split("T")[0]} // 🚫 TIDAK BOLEH MASA DEPAN
-              className="
-                absolute
-                right-2
-                top-1/2
-                -translate-y-1/2
-                h-8
-                w-8
-                opacity-0
-                cursor-pointer
-                z-10
-              "
+              max={new Date().toISOString().split("T")[0]}
+              className="absolute right-2 top-1/2 h-8 w-8 -translate-y-1/2 cursor-pointer opacity-0"
               onChange={(e) => {
-                const formatted = formatDateToDMY(
-                  e.target.value
-                );
+                const formatted = formatDateToDMY(e.target.value);
                 if (formatted) {
                   setForm({ ...form, dob: formatted });
                 }
               }}
             />
 
-            {/* IKON */}
-            <div
-              className="
-                absolute
-                right-2
-                top-1/2
-                -translate-y-1/2
-                pointer-events-none
-              "
-            >
+            <div className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2">
               📅
             </div>
           </div>
 
           {/* ALAMAT */}
           <textarea
-            className="w-full border p-2"
+            className="w-full rounded border p-2"
             placeholder="Alamat"
             value={form.address}
             onChange={(e) =>
@@ -202,7 +179,7 @@ export default function RegistrationPatientPage() {
           <button
             onClick={submit}
             disabled={loading}
-            className="bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+            className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
           >
             {loading ? "Menyimpan..." : "Daftarkan Pasien"}
           </button>

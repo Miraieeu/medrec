@@ -2,23 +2,25 @@ import "./types";
 import dotenv from "dotenv";
 dotenv.config();
 
-
 import express from "express";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger";
-
+import crypto from "crypto";
 import { authJWT } from "./middleware/authJWT";
 import { requireRole } from "./middleware/requireRole";
 import { errorHandler } from "./middleware/errorHandler";
 
-// ROUTES (RESOURCE ONLY)
+// ROUTES
 import authRoutes from "./routes/auth";
 import healthRoutes from "./routes/health";
 import patientRoutes from "./routes/patients";
 import queueRoutes from "./routes/queues";
 import recordRoutes from "./routes/records";
-import auditLogRoutes from "./routes/auditLogs";
+
+import auditLogs from "./routes/admin/auditLogs";
+import authLogs from "./routes/admin/authLogs";
+import users from "./routes/admin/user";
 
 // 🔐 GUARD JWT SECRET
 if (!process.env.JWT_SECRET) {
@@ -27,6 +29,10 @@ if (!process.env.JWT_SECRET) {
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+app.get("/__ping", (_req, res) => {
+  console.log("PING HIT");
+  res.send("pong");
+});
 
 /**
  * ======================
@@ -58,43 +64,37 @@ app.use("/api/health", healthRoutes);
 
 /**
  * ======================
- * ROLE-BASED GROUP ROUTERS
+ * ROLE-BASED ROUTERS
  * ======================
  */
 
 // REGISTRATION
 const registrationRouter = express.Router();
 registrationRouter.use(authJWT, requireRole(["registration"]));
-
 registrationRouter.use("/patients", patientRoutes);
 registrationRouter.use("/queues", queueRoutes);
-
 app.use("/api/registration", registrationRouter);
 
 // NURSE
 const nurseRouter = express.Router();
 nurseRouter.use(authJWT, requireRole(["nurse"]));
-
 nurseRouter.use("/queues", queueRoutes);
 nurseRouter.use("/records", recordRoutes);
-
 app.use("/api/nurse", nurseRouter);
 
 // DOCTOR
 const doctorRouter = express.Router();
-
 doctorRouter.use(authJWT, requireRole(["doctor"]));
 doctorRouter.use("/queues", queueRoutes);
 doctorRouter.use("/records", recordRoutes);
-
 app.use("/api/doctor", doctorRouter);
 
 // ADMIN
 const adminRouter = express.Router();
-
 adminRouter.use(authJWT, requireRole(["admin"]));
-adminRouter.use("/auditLogs", auditLogRoutes);
-
+adminRouter.use("/auditLogs", auditLogs);
+adminRouter.use("/authLogs", authLogs);
+adminRouter.use("/users", users);
 app.use("/api/admin", adminRouter);
 
 /**

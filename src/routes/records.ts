@@ -1,134 +1,269 @@
 import { Router } from "express";
+import crypto from "crypto";
 import { prisma } from "../prisma";
 import { AppError } from "../errors/AppError";
 import { assertRecordEditable } from "../services/medicalRecord.service";
 import { AuditAction } from "@prisma/client";
 import { logAudit } from "../utils/audit";
+import { authJWT } from "../middleware/authJWT";
+import { requireRole } from "../middleware/requireRole";
 
 const router = Router();
 
-// =======================
-// UPDATE NURSING DATA
-// =======================
-router.patch("/:id/nursing", async (req, res) => {
-  const recordId = Number(req.params.id);
-  if (isNaN(recordId)) {
-    throw new AppError("Invalid record id", 400);
+/**
+ * ======================================================
+ * GET RECORDS BY NIK (NURSE / DOCTOR)
+ * ======================================================
+ * GET /api/nurse/records/by-nik/:nik
+ */
+router.get(
+  "/by-nik/:nik",
+  authJWT,
+  requireRole(["nurse", "doctor"]),
+  async (req, res) => {
+    const nik = String(req.params.nik || "").trim();
+
+    if (!/^\d{16}$/.test(nik)) {
+      throw new AppError("Invalid NIK format", 400);
+    }
+
+    // 🔐 HASH NIK (HARUS IDENTIK DENGAN patients.ts)
+    const nikHash = crypto
+      .createHash("sha256")
+      .update(nik)
+      .digest("hex");
+
+    const patient = await prisma.patient.findUnique({
+      where: { nikHash },
+      select: {
+        id: true,
+        name: true,
+        medicalRecordNumber: true,
+      },
+    });
+
+    if (!patient) {
+      throw new AppError("Patient not found", 404);
+    }
+
+    const records = await prisma.medicalRecord.findMany({
+      where: { patientId: patient.id },
+      orderBy: { visitDate: "desc" },
+    });
+
+    res.json({
+      success: true,
+      data: {
+        patient,
+        records,
+      },
+    });
   }
+);
 
-  const { subjective, nursingPlan = null } = req.body;
+/**
+ * ======================================================
+ * UPDATE NURSING SOAP (NURSE)
+ * ======================================================
+ * PATCH /api/records/:id/nursing
+ */
+router.patch(
+  "/:id/nursing",
+  authJWT,
+  requireRole(["nurse"]),
+  async (req, res) => {
+    const recordId = Number(req.params.id);
+    if (isNaN(recordId)) {
+      throw new AppError("Invalid record id", 400);
+    }
 
-  if (!subjective || typeof subjective !== "string") {
-    throw new AppError("subjective is required", 400);
+    const { subjective, nursingPlan = null } = req.body;
+
+    if (!subjective || typeof subjective !== "string") {
+      throw new AppError("subjective is required", 400);
+    }
+
+    await assertRecordEditable(recordId);
+
+    await prisma.medicalRecord.update({
+      where: { id: recordId },
+      data: { subjective, nursingPlan },
+    });
+
+    await logAudit({
+      userId: req.user!.id,
+      action: AuditAction.UPDATE_NURSING,
+      entity: "MedicalRecord",
+      entityId: recordId,
+    });
+
+    res.json({
+      success: true,
+      message: "Nursing SOAP updated",
+      recordId,
+    });
   }
+);
 
-  await assertRecordEditable(recordId);
+/**
+ * ======================================================
+ * FINALIZE RECORD (DOCTOR)
+ * ======================================================
+ * PATCH /api/records/:id/finalize
+ */
+router.patch(
+  "/:id/finalize",
+  authJWT,
+  requireRole(["doctor"]),
+  async (req, res) => {
+    const recordId = Number(req.params.id);
+    if (isNaN(recordId)) {
+      throw new AppError("Invalid record id", 400);
+    }
 
-  await prisma.medicalRecord.update({
-    where: { id: recordId },
-    data: { subjective, nursingPlan },
-  });
+    await assertRecordEditable(recordId);
 
-  await logAudit({
-    userId: req.user!.id,
-    action: AuditAction.UPDATE_NURSING,
-    entity: "MedicalRecord",
-    entityId: recordId,
-  });
-
-  res.json({
-    success: true,
-    message: "Nursing SOAP updated",
-    recordId,
-  });
-});
-
-// =======================
-// FINALIZE RECORD
-// =======================
-router.patch("/:id/finalize", async (req, res) => {
-  const recordId = Number(req.params.id);
-  if (isNaN(recordId)) {
-    throw new AppError("Invalid record id", 400);
-  }
-
-  // 🔒 CEK STATUS DULU (DOMAIN RULE)
-  await assertRecordEditable(recordId);
-
-  const {
-    objective,
-    assessment,
-    pharmacologyPlan,
-    nonPharmacologyPlan,
-  } = req.body || {};
-
-  // 📋 VALIDASI ISI SOAP
-  if (!objective || !assessment) {
-    throw new AppError("objective and assessment are required", 400);
-  }
-
-  await prisma.medicalRecord.update({
-    where: { id: recordId },
-    data: {
+    const {
       objective,
       assessment,
       pharmacologyPlan,
       nonPharmacologyPlan,
-      status: "FINAL",
-      doctorId: req.user!.id,
-    },
-  });
+    } = req.body || {};
 
-  await logAudit({
-    userId: req.user!.id,
-    action: AuditAction.FINALIZE_RECORD,
-    entity: "MedicalRecord",
-    entityId: recordId,
-  });
+    if (!objective || !assessment) {
+      throw new AppError("objective and assessment are required", 400);
+    }
 
-  res.json({
-    success: true,
-    message: "Medical record finalized",
-    recordId,
-  });
-});
+    // 🔍 Ambil record + queue
+    const record = await prisma.medicalRecord.findUnique({
+      where: { id: recordId },
+      include: {
+        patient: true,
+      },
+    });
 
+    if (!record) {
+      throw new AppError("Medical record not found", 404);
+    }
 
-// =======================
-// LIST RECORDS BY PATIENT
-// =======================
-router.get("/patient/:patientId", async (req, res) => {
-  const patientId = Number(req.params.patientId);
-  if (isNaN(patientId)) {
-    throw new AppError("Invalid patient id", 400);
+    // 🔍 Cari queue aktif pasien hari ini
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const queue = await prisma.queue.findFirst({
+      where: {
+        patientId: record.patientId,
+        status: "CALLED",
+        date: {
+          gte: todayStart,
+          lte: todayEnd,
+        },
+      },
+    });
+
+    if (!queue) {
+      throw new AppError("Active queue not found", 404);
+    }
+
+    // 🔒 TRANSACTION
+    await prisma.$transaction([
+      prisma.medicalRecord.update({
+        where: { id: recordId },
+        data: {
+          objective,
+          assessment,
+          pharmacologyPlan,
+          nonPharmacologyPlan,
+          status: "FINAL",
+          doctorId: req.user!.id,
+        },
+      }),
+
+      prisma.queue.update({
+        where: { id: queue.id },
+        data: { status: "DONE" },
+      }),
+    ]);
+
+    await logAudit({
+      userId: req.user!.id,
+      action: AuditAction.FINALIZE_RECORD,
+      entity: "MedicalRecord",
+      entityId: recordId,
+    });
+
+    res.json({
+      success: true,
+      message: "SOAP finalized & queue completed",
+      recordId,
+      queueId: queue.id,
+    });
   }
+);
 
-  const records = await prisma.medicalRecord.findMany({
-    where: { patientId },
-    orderBy: { visitDate: "desc" },
-  });
 
-  res.json({ success: true, data: records });
-});
+/**
+ * ======================================================
+ * LIST RECORDS BY PATIENT ID
+ * ======================================================
+ * GET /api/records/patient/:patientId
+ */
+router.get(
+  "/patient/:patientId",
+  authJWT,
+  requireRole(["nurse", "doctor"]),
+  async (req, res) => {
+    const patientId = Number(req.params.patientId);
+    if (isNaN(patientId)) {
+      throw new AppError("Invalid patient id", 400);
+    }
 
-// =======================
-// GET RECORD BY ID
-// =======================
-router.get("/:id", async (req, res) => {
-  const recordId = Number(req.params.id);
-  if (isNaN(recordId)) {
-    throw new AppError("Invalid record id", 400);
+    const records = await prisma.medicalRecord.findMany({
+      where: { patientId },
+      orderBy: { visitDate: "desc" },
+    });
+
+    res.json({ success: true, data: records });
   }
+);
 
-  const record = await prisma.medicalRecord.findUnique({
-    where: { id: recordId },
-  });
+/**
+ * ======================================================
+ * GET RECORD BY ID
+ * ======================================================
+ * GET /api/records/:id
+ */
+router.get(
+  "/:id",
+  authJWT,
+  requireRole(["nurse", "doctor"]),
+  async (req, res) => {
+    const recordId = Number(req.params.id);
+    if (isNaN(recordId)) {
+      throw new AppError("Invalid record id", 400);
+    }
 
-  if (!record) {
-    throw new AppError("Medical record not found", 404);
+    const record = await prisma.medicalRecord.findUnique({
+      where: { id: recordId },
+      include: {
+        patient: {
+          select: {
+            name: true,
+            medicalRecordNumber: true,
+          },
+        },
+      },
+    });
+
+    if (!record) {
+      throw new AppError("Medical record not found", 404);
+    }
+
+    res.json({ success: true, data: record });
   }
-
-  res.json({ success: true, data: record });
-});
+);
 
 export default router;

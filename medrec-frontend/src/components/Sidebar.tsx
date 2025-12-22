@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MENU } from "@/config/menu";
+import { MENU_BY_ROLE } from "@/config/menu";
 import { useAuth } from "@/lib/useAuth";
 import LogoutButton from "@/components/LogoutButton";
 
@@ -10,9 +10,9 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { role } = useAuth();
 
-  const menu = MENU.filter((item) =>
-    role ? item.roles.includes(role) : false
-  );
+  if (!role) return null;
+
+  const menu = MENU_BY_ROLE[role] ?? [];
 
   return (
     <aside className="flex w-64 flex-col border-r bg-white">

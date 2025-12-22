@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import DashboardLayout from "@/components/DashboardLayout";
+
 import QueueTable from "@/components/QueueTable";
 import { apiFetch } from "@/lib/api";
 
@@ -39,7 +39,7 @@ export default function NurseQueuePage() {
 
   return (
     <ProtectedRoute allowedRoles={["nurse"]}>
-      <DashboardLayout title="Antrian Pasien (Nurse)">
+
         <QueueTable
           queues={queues}
           onCall={callQueue}
@@ -47,7 +47,7 @@ export default function NurseQueuePage() {
             router.push(`/nurse/records/${queueId}`)
           }
         />
-      </DashboardLayout>
+
     </ProtectedRoute>
   );
 }
