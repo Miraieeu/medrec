@@ -77,17 +77,27 @@ router.patch(
       throw new AppError("Invalid record id", 400);
     }
 
-    const { subjective, nursingPlan = null } = req.body;
+    const {
+      subjective,
+      objective,
+      assessment,
+      nursingPlan = null,
+    } = req.body;
 
-    if (!subjective || typeof subjective !== "string") {
-      throw new AppError("subjective is required", 400);
+    if (!subjective || !objective) {
+      throw new AppError("subjective & objective are required", 400);
     }
 
     await assertRecordEditable(recordId);
 
     await prisma.medicalRecord.update({
       where: { id: recordId },
-      data: { subjective, nursingPlan },
+      data: {
+        subjective,
+        objective,
+        assessment,
+        nursingPlan,
+      },
     });
 
     await logAudit({
@@ -99,11 +109,12 @@ router.patch(
 
     res.json({
       success: true,
-      message: "Nursing SOAP updated",
+      message: "Nursing SOAP saved (draft)",
       recordId,
     });
   }
 );
+
 
 /**
  * ======================================================
@@ -125,6 +136,7 @@ router.patch(
 
     const {
       objective,
+      subjective,
       assessment,
       pharmacologyPlan,
       nonPharmacologyPlan,

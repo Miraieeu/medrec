@@ -59,33 +59,6 @@ export default function DoctorSoapPage() {
   // ======================
   // SIMPAN (DRAFT)
   // ======================
-  async function saveDraft() {
-    if (!assessment || !objective) {
-      alert("Objective & Assessment wajib diisi");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await apiFetch(`/api/doctor/records/${recordId}/finalize`, {
-        method: "PATCH",
-        body: JSON.stringify({
-          objective,
-          assessment,
-          pharmacologyPlan,
-          nonPharmacologyPlan,
-        }
-      ),
-      });
-
-      alert("SOAP berhasil difinalisasi");
-      router.push("/doctor/queue");
-    } catch (e: any) {
-      alert(e.message || "Gagal menyimpan SOAP");
-    } finally {
-      setLoading(false);
-    }
-  }
 
   // ======================
   // FINALISASI

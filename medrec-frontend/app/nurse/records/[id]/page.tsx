@@ -17,95 +17,54 @@ export default function NurseSoapPage() {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<"DRAFT" | "FINAL">("DRAFT");
 
-  // ======================
-  // SUBJECTIVE
-  // ======================
-  const [complaint, setComplaint] = useState("");
-
-  // ======================
-  // OBJECTIVE
-  // ======================
-  const [temp, setTemp] = useState("");
-  const [bp, setBp] = useState("");
-  const [pulse, setPulse] = useState("");
-  const [resp, setResp] = useState("");
-  const [spo2, setSpo2] = useState("");
-  const [weight, setWeight] = useState("");
-  const [height, setHeight] = useState("");
-  const [consciousness, setConsciousness] = useState("Compos Mentis");
-  const [observation, setObservation] = useState("");
-
-  // ======================
-  // ASSESSMENT & PLAN
-  // ======================
-  const [assessment, setAssessment] = useState("");
-  const [plan, setPlan] = useState("");
+  const [subjective, setSubjective] = useState("");
+  const [objective, setObjective] = useState("");
+  const [nursingPlan, setNursingPlan] = useState("");
 
   const isFinal = status === "FINAL";
 
   // ======================
-  // 🔑 LOAD DATA DRAFT
+  // LOAD DRAFT DATA
   // ======================
   useEffect(() => {
     apiFetch(`/api/nurse/records/${recordId}`)
       .then((res) => {
         const r = res.data;
-
         setStatus(r.status);
-
-        // SUBJECTIVE
-        setComplaint(r.subjective || "");
-
-        // OBJECTIVE (kalau sebelumnya string)
-        if (r.objective) {
-          setObservation(r.objective);
-        }
-
-        setAssessment(r.assessment || "");
-        setPlan(r.nursingPlan || "");
+        setSubjective(r.subjective || "");
+        setObjective(r.objective || "");
+        setNursingPlan(r.nursingPlan || "");
       })
-      .catch((e) => {
-        console.error(e);
+      .catch(() => {
         alert("Gagal memuat rekam medis");
       });
   }, [recordId]);
 
   // ======================
-  // SUBMIT SOAP
+  // SUBMIT
   // ======================
   async function submit() {
-    if (!complaint) {
-      alert("Subjective wajib diisi");
+    if (!subjective || !objective) {
+      alert("Subjective dan Objective wajib diisi");
       return;
     }
 
     setLoading(true);
 
-    const objective = `
-Suhu: ${temp} °C
-Tekanan Darah: ${bp} mmHg
-Nadi: ${pulse} x/menit
-Respirasi: ${resp} x/menit
-SpO2: ${spo2} %
-BB/TB: ${weight} kg / ${height} cm
-Kesadaran: ${consciousness}
-Observasi: ${observation}
-`.trim();
-
     try {
       await apiFetch(`/api/nurse/records/${recordId}/nursing`, {
         method: "PATCH",
         body: JSON.stringify({
-          subjective: complaint,
-          nursingPlan: plan,
+          subjective,
+          objective,
+          nursingPlan,
         }),
       });
 
-      alert("SOAP keperawatan berhasil disimpan");
+      alert("SOAP keperawatan tersimpan");
       router.push("/nurse/queue");
-    } catch (err: any) {
-      console.error(err);
-      alert(err.message || "Gagal menyimpan SOAP");
+    } catch (e: any) {
+      alert(e.message || "Gagal menyimpan SOAP");
     } finally {
       setLoading(false);
     }
@@ -120,52 +79,36 @@ Observasi: ${observation}
           </p>
         )}
 
-        {/* SUBJECTIVE */}
         <section>
           <h2 className="font-semibold mb-2">Subjective</h2>
           <textarea
             className="w-full border p-2"
             rows={3}
-            value={complaint}
             disabled={isFinal}
-            onChange={(e) => setComplaint(e.target.value)}
+            value={subjective}
+            onChange={(e) => setSubjective(e.target.value)}
           />
         </section>
 
-        {/* OBJECTIVE */}
         <section>
           <h2 className="font-semibold mb-2">Objective</h2>
-
           <textarea
             className="w-full border p-2"
             rows={4}
-            value={observation}
             disabled={isFinal}
-            onChange={(e) => setObservation(e.target.value)}
+            value={objective}
+            onChange={(e) => setObjective(e.target.value)}
           />
         </section>
 
-        {/* ASSESSMENT */}
-        <section>
-          <h2 className="font-semibold mb-2">Assessment</h2>
-          <textarea
-            className="w-full border p-2"
-            rows={2}
-            value={assessment}
-            disabled={isFinal}
-            onChange={(e) => setAssessment(e.target.value)}
-          />
-        </section>
-
-        {/* PLAN */}
         <section>
           <h2 className="font-semibold mb-2">Nursing Plan</h2>
           <textarea
             className="w-full border p-2"
-            rows={2}
-            value={plan}
+            rows={3}
             disabled={isFinal}
-            onChange={(e) => setPlan(e.target.value)}
+            value={nursingPlan}
+            onChange={(e) => setNursingPlan(e.target.value)}
           />
         </section>
 
