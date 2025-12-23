@@ -24,7 +24,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "4000:3000" # Akses di http://localhost:3002 (Biar gak bentrok sama backend)
-    environment:
       # Agar Frontend tau dimana Backend berada (untuk API call Server-side)
       - NEXT_PUBLIC_API_URL=http://localhost:4000
     networks:
@@ -66,10 +65,34 @@ services:
       - medrec-network
     depends_on:
       - prometheus
+# ... service lain ...
 
+  # --- 5. SONARQUBE (Code Quality & Security) ---
+  sonarqube:
+    image: sonarqube:community
+    container_name: sonarqube
+    restart: unless-stopped
+    ports:
+      - "9000:9000" # Akses di http://localhost:9000
+    networks:
+      - medrec-network
+    environment:
+      # Opsional: Matikan password change force di awal (biar cepat)
+      - SONAR_FORCEAUTHENTICATION=false
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+
+# ... bagian networks tetap sama ...
+
+# Jangan lupa daftarkan volume baru di paling bawah:  
 networks:
   medrec-network:
     driver: bridge
 
 volumes:
   pgdata:
+  sonarqube_data:       # <--- Tambah ini
+  sonarqube_extensions: # <--- Tambah ini
+  sonarqube_logs:       # <--- Tambah ini
