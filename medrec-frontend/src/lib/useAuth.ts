@@ -35,7 +35,7 @@ export function useAuth(): AuthState {
     setState({
       ready: true,
       authenticated: true,
-      role: payload.role,
+      role: payload.role as UserRole,
     });
   }, []);
 

@@ -12,7 +12,7 @@ export default function Sidebar() {
 
   if (!role) return null;
 
-  const menu = MENU_BY_ROLE[role] ?? [];
+  const menu = (MENU_BY_ROLE as any)[role] ?? [];
 
   return (
     <aside className="flex w-64 flex-col border-r bg-white">
@@ -23,7 +23,7 @@ export default function Sidebar() {
 
       {/* MENU */}
       <nav className="flex-1 space-y-1 px-4 py-4">
-        {menu.map((item) => {
+        {menu.map((item:any) => {
           const active = pathname.startsWith(item.href);
 
           return (
