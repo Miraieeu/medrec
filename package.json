@@ -28,5 +28,9 @@
      "dev": "ts-node src/server.ts",
     "start": "node dist/server.js",
     "build" : "tsc"
+  },
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
   }
 }
