@@ -1,31 +1,17 @@
 import { useEffect, useState } from "react";
-
-
+import { TOKEN_KEY } from "@/lib/constants";
 export function useApiToken() {
-  const { data: session, status } = ();
+  // State untuk menyimpan token
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    if (status !== "authenticated") return;
-
-    async function exchange() {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/exchange`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: session!.user.email,
-          }),
-        }
-      );
-
-      const data = await res.json();
-      setToken(data.token);
+    // Cek apakah kita sedang di browser (bukan di server saat build)
+    if (typeof window !== "undefined") {
+      // Ambil token dari LocalStorage sesuai KEY yang kita tentukan
+      const storedToken = localStorage.getItem(TOKEN_KEY);
+      setToken(storedToken);
     }
-
-    exchange();
-  }, [status]);
+  }, []);
 
   return token;
 }

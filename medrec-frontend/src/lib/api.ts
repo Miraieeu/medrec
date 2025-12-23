@@ -3,32 +3,28 @@ let apiToken: string | null = null;
 // =======================
 // TOKEN ACCESS
 // =======================
-export function getApiToken(): string | null {
-  if (apiToken) return apiToken;
+import { TOKEN_KEY } from "@/lib/constants";
 
-  if (typeof window !== "undefined") {
-    const stored = localStorage.getItem("apiToken");
-    if (stored) {
-      apiToken = stored;
-      return stored;
-    }
-  }
-
-  return null;
-}
-
+// Fungsi untuk MENYIMPAN token (Dipanggil saat Login)
 export function setApiToken(token: string) {
-  apiToken = token;
   if (typeof window !== "undefined") {
-    localStorage.setItem("apiToken", token);
+    localStorage.setItem(TOKEN_KEY, token);
   }
 }
 
+// Fungsi untuk MENGHAPUS token (Dipanggil saat Logout)
 export function clearApiToken() {
-  apiToken = null;
   if (typeof window !== "undefined") {
-    localStorage.removeItem("apiToken");
+    localStorage.removeItem(TOKEN_KEY);
   }
+}
+
+// Fungsi helper kalau butuh ambil token biasa (bukan hook)
+export function getApiToken() {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem(TOKEN_KEY);
+  }
+  return null;
 }
 
 // =======================
