@@ -24,7 +24,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "4000:3000" # Akses di http://localhost:3002 (Biar gak bentrok sama backend)
-      # Agar Frontend tau dimana Backend berada (untuk API call Server-side)
+    environment:  # Agar Frontend tau dimana Backend berada (untuk API call Server-side)
       - NEXT_PUBLIC_API_URL=http://localhost:4000
     networks:
       - medrec-network
