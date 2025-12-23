@@ -16,8 +16,8 @@ COPY . .
 # Build TypeScript ke JavaScript (hasilnya di folder dist)
 RUN npm run build
 
-# Buka port aplikasi (Misal port 3000)
-EXPOSE 3000
+# Buka port aplikasi (Misal port 4000)
+EXPOSE 4000
 
 # Perintah untuk menjalankan aplikasi (sesuai script "start" di package.json)
 CMD ["npm", "start"]

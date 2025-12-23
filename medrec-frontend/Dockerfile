@@ -14,8 +14,8 @@ COPY . .
 # 5. Build aplikasi Next.js (Production Ready)
 RUN npm run build
 
-# 6. Expose port bawaan Next.js (4000)
-EXPOSE 4000
+# 6. Expose port bawaan Next.js (3000)
+EXPOSE 3000
 
 # 7. Jalankan aplikasi
 CMD ["npm", "start"]
