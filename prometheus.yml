@@ -10,4 +10,4 @@ scrape_configs:
   - job_name: 'medrec-backend'
     scrape_interval: 5s
     static_configs:
-      - targets: ['backend:3000'] # Pastikan nama hostnya sesuai service backend kamu
+      - targets: ['backend:4000'] # Pastikan nama hostnya sesuai service backend kamu

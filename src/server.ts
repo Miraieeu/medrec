@@ -1,7 +1,7 @@
 import "./types";
 import dotenv from "dotenv";
 dotenv.config();
-
+import { register } from "./metrics";
 import express from "express";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
@@ -29,10 +29,14 @@ if (!process.env.JWT_SECRET) {
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-app.get("/__ping", (_req, res) => {
-  console.log("PING HIT");
-  res.send("pong");
+
+
+app.get("/metrics", async (_req, res) => {
+  res.setHeader("Content-Type", register.contentType);
+  res.end(await register.metrics());
 });
+
+
 
 /**
  * ======================
