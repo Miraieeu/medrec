@@ -1,98 +1,110 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  # --- 1. BACKEND (Express/TS) ---
-  backend:
-    container_name: medrec-backend
-    build: .  # Titik (.) artinya Dockerfile ada di folder root ini
-    ports:
-      - "4000:3000" # Akses di http://localhost:3000
-    environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/medrec_db
-      - PORT=4000
-    depends_on:
-      - db
-    networks:
-      - medrec-network
-
-  # --- 2. FRONTEND (Next.js) ---
-  frontend:
-    container_name: medrec-frontend
-    # Ini kuncinya: Kita suruh Docker cari Dockerfile di folder medrec-frontend
-    build: 
-      context: ./medrec-frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000" # Akses di http://localhost:3000 (Biar gak bentrok sama backend)
-    environment:  # Agar Frontend tau dimana Backend berada (untuk API call Server-side)
-      - NEXT_PUBLIC_API_URL=http://localhost:4000
-    networks:
-      - medrec-network
-
-  # --- 3. DATABASE ---
+  # ======================
+  # DATABASE
+  # ======================
   db:
     image: postgres:15
     container_name: medrec-db
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: medrec_db
+      POSTGRES_USER: medrec
+      POSTGRES_PASSWORD: medrec
+      POSTGRES_DB: medrec
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
       - medrec-network
 
-  # --- 4. PROMETHEUS ---
+  # ======================
+  # BACKEND
+  # ======================
+  backend:
+    container_name: medrec-backend
+    build:
+      context: ./medrec-backend
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 4000
+      DATABASE_URL: postgresql://medrec:medrec@db:5432/medrec
+      JWT_SECRET: supersecret
+    depends_on:
+      - db
+    networks:
+      - medrec-network
+
+  # ======================
+  # FRONTEND
+  # ======================
+  frontend:
+    container_name: medrec-frontend
+    build:
+      context: ./medrec-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - backend
+    networks:
+      - medrec-network
+
+  # ======================
+  # PROMETHEUS
+  # ======================
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
-      - "9090:9090" # Akses di http://localhost:9090
+      - "9090:9090"
     networks:
       - medrec-network
 
-  # --- 5. GRAFANA ---
+  # ======================
+  # GRAFANA
+  # ======================
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "3001:3000" # Akses di http://localhost:3001
+      - "3001:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    networks:
-      - medrec-network
+      GF_SECURITY_ADMIN_PASSWORD: admin
     depends_on:
       - prometheus
-# ... service lain ...
+    networks:
+      - medrec-network
 
-  # --- 5. SONARQUBE (Code Quality & Security) ---
+  # ======================
+  # SONARQUBE
+  # ======================
   sonarqube:
     image: sonarqube:community
     container_name: sonarqube
     restart: unless-stopped
     ports:
-      - "9000:9000" # Akses di http://localhost:9000
-    networks:
-      - medrec-network
+      - "9000:9000"
     environment:
-      # Opsional: Matikan password change force di awal (biar cepat)
-      - SONAR_FORCEAUTHENTICATION=false
+      SONAR_FORCEAUTHENTICATION: "false"
     volumes:
       - sonarqube_data:/opt/sonarqube/data
       - sonarqube_extensions:/opt/sonarqube/extensions
       - sonarqube_logs:/opt/sonarqube/logs
+    networks:
+      - medrec-network
 
-# ... bagian networks tetap sama ...
-
-# Jangan lupa daftarkan volume baru di paling bawah:  
 networks:
   medrec-network:
     driver: bridge
 
 volumes:
   pgdata:
-  sonarqube_data:       # <--- Tambah ini
-  sonarqube_extensions: # <--- Tambah ini
-  sonarqube_logs:       # <--- Tambah ini
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
