@@ -6,10 +6,10 @@ services:
     container_name: medrec-backend
     build: .  # Titik (.) artinya Dockerfile ada di folder root ini
     ports:
-      - "3000:3000" # Akses di http://localhost:3000
+      - "4000:3000" # Akses di http://localhost:3000
     environment:
       - DATABASE_URL=postgresql://user:password@db:5432/medrec_db
-      - PORT=3000
+      - PORT=4000
     depends_on:
       - db
     networks:
@@ -23,7 +23,7 @@ services:
       context: ./medrec-frontend
       dockerfile: Dockerfile
     ports:
-      - "4000:3000" # Akses di http://localhost:3002 (Biar gak bentrok sama backend)
+      - "3000:3000" # Akses di http://localhost:3000 (Biar gak bentrok sama backend)
     environment:  # Agar Frontend tau dimana Backend berada (untuk API call Server-side)
       - NEXT_PUBLIC_API_URL=http://localhost:4000
     networks:
