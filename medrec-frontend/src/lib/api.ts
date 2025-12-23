@@ -37,8 +37,9 @@ export async function apiFetch(
   const token = getApiToken();
 
   if (!token) {
-    throw new Error("UNAUTHORIZED");
-  }
+  throw new Error("NO_TOKEN");
+}
+
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}${path}`,

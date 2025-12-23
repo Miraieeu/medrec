@@ -23,7 +23,7 @@ services:
   backend:
     container_name: medrec-backend
     build:
-      context: ./medrec-backend
+      context: ./
       dockerfile: Dockerfile
     ports:
       - "4000:4000"
