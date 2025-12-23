@@ -2,8 +2,7 @@
 
 
 export default function HomePage() {
-  const { data: session, status } = ;
-  console.log(status, session);
+
  
   return (
     <main className="flex min-h-screen items-center justify-center">
