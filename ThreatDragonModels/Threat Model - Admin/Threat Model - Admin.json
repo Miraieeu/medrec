@@ -1118,6 +1118,7 @@
             },
             "visible": true,
             "shape": "actor",
+            "zIndex": 1,
             "ports": {
               "groups": {
                 "top": {
@@ -1201,7 +1202,6 @@
               ]
             },
             "id": "8ca6ae63-efe5-49db-ab06-8f19b9ff0624",
-            "zIndex": 1,
             "data": {
               "type": "tm.Actor",
               "name": "Pendaftaran",
@@ -1235,6 +1235,7 @@
             },
             "visible": true,
             "shape": "actor",
+            "zIndex": 2,
             "ports": {
               "groups": {
                 "top": {
@@ -1318,7 +1319,6 @@
               ]
             },
             "id": "22e93176-5403-439e-b8f6-6ca0faf01dbe",
-            "zIndex": 2,
             "data": {
               "type": "tm.Actor",
               "name": "Nurse",
@@ -1352,6 +1352,7 @@
             },
             "visible": true,
             "shape": "actor",
+            "zIndex": 3,
             "ports": {
               "groups": {
                 "top": {
@@ -1435,7 +1436,6 @@
               ]
             },
             "id": "2d8106f5-eb57-4c4d-ba7e-65bd1013eb9f",
-            "zIndex": 3,
             "data": {
               "type": "tm.Actor",
               "name": "Doctor",
@@ -1459,7 +1459,7 @@
             },
             "attrs": {
               "text": {
-                "text": "Membuat Rekam Medis"
+                "text": "Membuat \nRekam Medis"
               },
               "body": {
                 "stroke": "#333333",
@@ -1469,6 +1469,7 @@
             },
             "visible": true,
             "shape": "process",
+            "zIndex": 4,
             "ports": {
               "groups": {
                 "top": {
@@ -1552,10 +1553,9 @@
               ]
             },
             "id": "de76b33d-2691-450a-8b03-0b198ba9c682",
-            "zIndex": 4,
             "data": {
               "type": "tm.Process",
-              "name": "Membuat Rekam Medis",
+              "name": "Membuat \nRekam Medis",
               "description": "",
               "outOfScope": false,
               "isTrustBoundary": false,
@@ -1579,7 +1579,7 @@
             },
             "attrs": {
               "text": {
-                "text": "Membuat Rekam Medis"
+                "text": "Membuat \nDiagnosis \nawal pasien"
               },
               "body": {
                 "stroke": "#333333",
@@ -1589,6 +1589,7 @@
             },
             "visible": true,
             "shape": "process",
+            "zIndex": 5,
             "ports": {
               "groups": {
                 "top": {
@@ -1674,7 +1675,7 @@
             "id": "7ca3781d-9f14-4de9-8824-e0d21da71964",
             "data": {
               "type": "tm.Process",
-              "name": "Membuat Rekam Medis",
+              "name": "Membuat \nDiagnosis \nawal pasien",
               "description": "",
               "outOfScope": false,
               "isTrustBoundary": false,
@@ -1685,8 +1686,7 @@
               "isWebApplication": false,
               "privilegeLevel": "",
               "threats": []
-            },
-            "zIndex": 5
+            }
           },
           {
             "position": {
@@ -1699,7 +1699,7 @@
             },
             "attrs": {
               "text": {
-                "text": "Membuat Rekam Medis"
+                "text": "Melakukan\nPemeriksaan\nPasien"
               },
               "body": {
                 "stroke": "#333333",
@@ -1709,6 +1709,7 @@
             },
             "visible": true,
             "shape": "process",
+            "zIndex": 6,
             "ports": {
               "groups": {
                 "top": {
@@ -1794,7 +1795,7 @@
             "id": "d085f64e-a85f-4a89-9637-ffdf43fe005d",
             "data": {
               "type": "tm.Process",
-              "name": "Membuat Rekam Medis",
+              "name": "Melakukan\nPemeriksaan\nPasien",
               "description": "",
               "outOfScope": false,
               "isTrustBoundary": false,
@@ -1805,8 +1806,183 @@
               "isWebApplication": false,
               "privilegeLevel": "",
               "threats": []
+            }
+          },
+          {
+            "position": {
+              "x": 733,
+              "y": 301
             },
-            "zIndex": 6
+            "size": {
+              "width": 120,
+              "height": 60
+            },
+            "attrs": {
+              "text": {
+                "text": "Database Pasien"
+              },
+              "topLine": {
+                "strokeWidth": 1.5,
+                "strokeDasharray": null
+              },
+              "bottomLine": {
+                "strokeWidth": 1.5,
+                "strokeDasharray": null
+              }
+            },
+            "visible": true,
+            "shape": "store",
+            "zIndex": 7,
+            "ports": {
+              "groups": {
+                "top": {
+                  "position": "top",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "right": {
+                  "position": "right",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "bottom": {
+                  "position": "bottom",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "left": {
+                  "position": "left",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                }
+              },
+              "items": [
+                {
+                  "group": "top",
+                  "id": "dfb4c0f2-fa6f-4674-af5e-61041b21500a"
+                },
+                {
+                  "group": "right",
+                  "id": "e1381148-1ca4-4edd-9894-a9ee12ba06f7"
+                },
+                {
+                  "group": "bottom",
+                  "id": "c10dc629-145d-45b1-93dc-e882c82dc251"
+                },
+                {
+                  "group": "left",
+                  "id": "18c7217f-4dc4-448e-b21f-42ef138af8a4"
+                }
+              ]
+            },
+            "id": "b94426d1-d9ad-4b7d-b3ba-f89b9911e2f7",
+            "data": {
+              "type": "tm.Store",
+              "name": "Database Pasien",
+              "description": "",
+              "outOfScope": false,
+              "isTrustBoundary": false,
+              "reasonOutOfScope": "",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "storesCredentials": false,
+              "storesInventory": false,
+              "threats": []
+            }
+          },
+          {
+            "shape": "flow",
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "targetMarker": {
+                  "name": "block"
+                },
+                "sourceMarker": {
+                  "name": ""
+                },
+                "strokeDasharray": null
+              }
+            },
+            "width": 200,
+            "height": 100,
+            "zIndex": 10,
+            "connector": "smooth",
+            "data": {
+              "type": "tm.Flow",
+              "name": "Data Flow",
+              "description": "",
+              "outOfScope": false,
+              "isTrustBoundary": false,
+              "reasonOutOfScope": "",
+              "hasOpenThreats": false,
+              "isBidirectional": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "protocol": "",
+              "threats": [],
+              "trustBoundaryIds": []
+            },
+            "labels": [
+              "Data Flow"
+            ],
+            "id": "bbb23bfa-46ce-4302-90c1-80ccabb29792",
+            "source": {
+              "x": 263,
+              "y": 130
+            },
+            "target": {
+              "cell": "de76b33d-2691-450a-8b03-0b198ba9c682",
+              "port": "72b88cbd-5622-4b04-8e90-58805bd74d49"
+            },
+            "vertices": [
+              {
+                "x": 350,
+                "y": 130
+              }
+            ]
           }
         ]
       }
