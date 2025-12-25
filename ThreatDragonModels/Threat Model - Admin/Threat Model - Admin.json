@@ -16,11 +16,989 @@
         "placeholder": "New STRIDE diagram description",
         "thumbnail": "./public/content/images/thumbnail.stride.jpg",
         "version": "2.5.0",
-        "cells": []
+        "cells": [
+          {
+            "position": {
+              "x": 180,
+              "y": 120
+            },
+            "size": {
+              "width": 112.5,
+              "height": 60
+            },
+            "attrs": {
+              "text": {
+                "text": "admin"
+              },
+              "body": {
+                "stroke": "red",
+                "strokeWidth": 2.5,
+                "strokeDasharray": null
+              }
+            },
+            "visible": true,
+            "shape": "actor",
+            "ports": {
+              "groups": {
+                "top": {
+                  "position": "top",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "right": {
+                  "position": "right",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "bottom": {
+                  "position": "bottom",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "left": {
+                  "position": "left",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                }
+              },
+              "items": [
+                {
+                  "group": "top",
+                  "id": "5636e0c7-ca05-4fd4-b747-5d7b3e167ba2"
+                },
+                {
+                  "group": "right",
+                  "id": "d2c770db-d486-4430-9a71-fcdd8f29e3c9"
+                },
+                {
+                  "group": "bottom",
+                  "id": "8a2cd1be-df48-4bd2-ab93-67b32fa6dbb7"
+                },
+                {
+                  "group": "left",
+                  "id": "59f7b04f-94f9-4e8b-8668-0dddaa73f93d"
+                }
+              ]
+            },
+            "id": "900a8068-0408-420e-a74c-2bc2b2107088",
+            "zIndex": 1,
+            "data": {
+              "type": "tm.Actor",
+              "name": "admin",
+              "description": "",
+              "isTrustBoundary": false,
+              "outOfScope": false,
+              "reasonOutOfScope": "",
+              "hasOpenThreats": true,
+              "providesAuthentication": false,
+              "threats": [
+                {
+                  "id": "85074c67-5308-4bd7-9828-ff8c224f04b3",
+                  "title": "Penyerang menyamar sebagai admin",
+                  "status": "Open",
+                  "severity": "Critical",
+                  "type": "Spoofing",
+                  "description": "Kontrol penuh sistem,",
+                  "mitigation": "RBAC",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 1,
+                  "score": "20"
+                },
+                {
+                  "id": "5e0ab09b-cb37-432e-9439-487547209c38",
+                  "title": "Admin menyangkal perubahan akun",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "type": "Repudiation",
+                  "description": "Berdampak pada Tidak ada bukti forensik ketika admin melakukan perubahan",
+                  "mitigation": "Audit log, timestamp, immutable log, blockchain",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 2,
+                  "score": "9"
+                }
+              ],
+              "threatFrequency": {
+                "spoofing": 2,
+                "repudiation": 2
+              }
+            }
+          },
+          {
+            "position": {
+              "x": 445,
+              "y": 10
+            },
+            "size": {
+              "width": 120,
+              "height": 110
+            },
+            "attrs": {
+              "text": {
+                "text": "Mengelola\nakun User"
+              },
+              "body": {
+                "stroke": "red",
+                "strokeWidth": 2.5,
+                "strokeDasharray": null
+              }
+            },
+            "visible": true,
+            "shape": "process",
+            "ports": {
+              "groups": {
+                "top": {
+                  "position": "top",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "right": {
+                  "position": "right",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "bottom": {
+                  "position": "bottom",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "left": {
+                  "position": "left",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                }
+              },
+              "items": [
+                {
+                  "group": "top",
+                  "id": "e925dc40-2557-476d-9f4a-e1cc4b7b1d26"
+                },
+                {
+                  "group": "right",
+                  "id": "dfc0c767-59d3-49d6-b7ec-a03be9cde179"
+                },
+                {
+                  "group": "bottom",
+                  "id": "473134c5-35c1-4c4e-9652-c0cff5255eab"
+                },
+                {
+                  "group": "left",
+                  "id": "5e7f6726-db15-4b09-aff0-519a60b28048"
+                }
+              ]
+            },
+            "id": "235b1b15-4644-4e49-9843-f013b160a0b9",
+            "zIndex": 2,
+            "data": {
+              "type": "tm.Process",
+              "name": "Mengelola\nakun User",
+              "description": "",
+              "outOfScope": false,
+              "isTrustBoundary": false,
+              "reasonOutOfScope": "",
+              "hasOpenThreats": true,
+              "handlesCardPayment": false,
+              "handlesGoodsOrServices": false,
+              "isWebApplication": false,
+              "privilegeLevel": "",
+              "threats": [
+                {
+                  "id": "bd22045a-6f3e-471c-ac3d-ceb1cc6d9743",
+                  "title": "Manipulasi Role",
+                  "status": "Open",
+                  "severity": "High",
+                  "type": "Tampering",
+                  "description": "Eskalasi Hak Akses",
+                  "mitigation": "Input Validation",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 9,
+                  "score": "16"
+                },
+                {
+                  "id": "28cada69-7c4f-4eba-8095-adbb2bf61d6a",
+                  "title": "Aksi admin tidak dapat dilacak",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "type": "Repudiation",
+                  "description": "Forensik Gagal",
+                  "mitigation": "Audit Trail",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 10,
+                  "score": "9"
+                },
+                {
+                  "id": "7a91c6b8-3c27-407e-8742-621fcbeff640",
+                  "title": "Role User dimanipulasi",
+                  "status": "Open",
+                  "severity": "Critical",
+                  "type": "Elevation of privilege",
+                  "description": "Kontrol sistem bocor",
+                  "mitigation": "RBAC",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 11,
+                  "score": "20"
+                }
+              ],
+              "threatFrequency": {
+                "spoofing": 0,
+                "tampering": 1,
+                "repudiation": 1,
+                "informationDisclosure": 0,
+                "denialOfService": 0,
+                "elevationOfPrivilege": 1
+              }
+            }
+          },
+          {
+            "position": {
+              "x": 450,
+              "y": 179.99999999999991
+            },
+            "size": {
+              "width": 110,
+              "height": 120
+            },
+            "attrs": {
+              "text": {
+                "text": "Melihat Audit\n& Auth Log"
+              },
+              "body": {
+                "stroke": "red",
+                "strokeWidth": 2.5,
+                "strokeDasharray": null
+              }
+            },
+            "visible": true,
+            "shape": "process",
+            "ports": {
+              "groups": {
+                "top": {
+                  "position": "top",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "right": {
+                  "position": "right",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "bottom": {
+                  "position": "bottom",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "left": {
+                  "position": "left",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                }
+              },
+              "items": [
+                {
+                  "group": "top",
+                  "id": "e925dc40-2557-476d-9f4a-e1cc4b7b1d26"
+                },
+                {
+                  "group": "right",
+                  "id": "dfc0c767-59d3-49d6-b7ec-a03be9cde179"
+                },
+                {
+                  "group": "bottom",
+                  "id": "473134c5-35c1-4c4e-9652-c0cff5255eab"
+                },
+                {
+                  "group": "left",
+                  "id": "5e7f6726-db15-4b09-aff0-519a60b28048"
+                }
+              ]
+            },
+            "id": "8670885f-53e7-4d99-b8e5-7137939c668c",
+            "zIndex": 3,
+            "data": {
+              "type": "tm.Process",
+              "name": "Melihat Audit\n& Auth Log",
+              "description": "",
+              "outOfScope": false,
+              "isTrustBoundary": false,
+              "reasonOutOfScope": "",
+              "hasOpenThreats": true,
+              "handlesCardPayment": false,
+              "handlesGoodsOrServices": false,
+              "isWebApplication": false,
+              "privilegeLevel": "",
+              "threats": [
+                {
+                  "id": "03c4034e-46ec-4888-a742-fbcdc7cca9c9",
+                  "title": "Audit log diakses pihak tak berwenang",
+                  "status": "Open",
+                  "severity": "High",
+                  "type": "Information disclosure",
+                  "description": "Kebocoran data sensitif",
+                  "mitigation": "Access control, masking data",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 3,
+                  "score": ""
+                },
+                {
+                  "id": "82912d7e-8cef-41fc-9c6d-9bbf8b2f9f74",
+                  "title": "Query log berlebihan",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "type": "Denial of service",
+                  "description": "Sistem admin lambat/tidak responsif",
+                  "mitigation": "Rate limiting, pagination",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 4,
+                  "score": ""
+                }
+              ],
+              "threatFrequency": {
+                "spoofing": 0,
+                "tampering": 0,
+                "repudiation": 0,
+                "informationDisclosure": 1,
+                "denialOfService": 1,
+                "elevationOfPrivilege": 0
+              }
+            }
+          },
+          {
+            "shape": "flow",
+            "attrs": {
+              "line": {
+                "stroke": "red",
+                "strokeWidth": 2.5,
+                "targetMarker": {
+                  "name": "block"
+                },
+                "sourceMarker": {
+                  "name": ""
+                },
+                "strokeDasharray": null
+              }
+            },
+            "width": 200,
+            "height": 100,
+            "zIndex": 10,
+            "connector": "smooth",
+            "data": {
+              "type": "tm.Flow",
+              "name": "Data Flow",
+              "description": "",
+              "outOfScope": false,
+              "isTrustBoundary": false,
+              "reasonOutOfScope": "",
+              "hasOpenThreats": true,
+              "isBidirectional": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "protocol": "",
+              "threats": [
+                {
+                  "id": "236edc4f-b83d-4c8c-8c6d-caafb6182666",
+                  "title": "Data akun diubah saat transit",
+                  "status": "Open",
+                  "severity": "High",
+                  "type": "Tampering",
+                  "description": "Role salah tersimpan",
+                  "mitigation": "integrity check",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 5,
+                  "score": ""
+                },
+                {
+                  "id": "d270fcd3-7353-4516-87a3-3ca1186de55d",
+                  "title": "Data akun disadap",
+                  "status": "Open",
+                  "severity": "High",
+                  "type": "Information disclosure",
+                  "description": "Kebocoran kredensial",
+                  "mitigation": "Enkripsi in-transit, memperkuat kemanan jaringan lokal",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 6,
+                  "score": ""
+                }
+              ],
+              "trustBoundaryIds": [],
+              "threatFrequency": {
+                "tampering": 1,
+                "informationDisclosure": 1,
+                "denialOfService": 0
+              }
+            },
+            "labels": [
+              "Data Flow"
+            ],
+            "id": "bc463654-9cea-41a4-a395-6ebbf2ef99bb",
+            "source": {
+              "x": 290,
+              "y": 150
+            },
+            "target": {
+              "cell": "235b1b15-4644-4e49-9843-f013b160a0b9",
+              "port": "5e7f6726-db15-4b09-aff0-519a60b28048"
+            },
+            "vertices": [
+              {
+                "x": 310,
+                "y": 150
+              },
+              {
+                "x": 340,
+                "y": 110
+              },
+              {
+                "x": 360,
+                "y": 90
+              },
+              {
+                "x": 390,
+                "y": 65
+              }
+            ]
+          },
+          {
+            "shape": "flow",
+            "attrs": {
+              "line": {
+                "stroke": "red",
+                "strokeWidth": 2.5,
+                "targetMarker": {
+                  "name": "block"
+                },
+                "sourceMarker": {
+                  "name": ""
+                },
+                "strokeDasharray": null
+              }
+            },
+            "width": 200,
+            "height": 100,
+            "zIndex": 10,
+            "connector": "smooth",
+            "data": {
+              "type": "tm.Flow",
+              "name": "Data Flow",
+              "description": "",
+              "outOfScope": false,
+              "isTrustBoundary": false,
+              "reasonOutOfScope": "",
+              "hasOpenThreats": true,
+              "isBidirectional": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "protocol": "",
+              "threats": [
+                {
+                  "id": "b1a94660-c0e8-4ad7-bc5d-5fadd267972c",
+                  "title": "Audit log bocor saat transmisi",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "type": "Information disclosure",
+                  "description": "Ekspos aktivitas sistem",
+                  "mitigation": "Enkripsi komunikasi",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 7,
+                  "score": "12"
+                }
+              ],
+              "trustBoundaryIds": [],
+              "threatFrequency": {
+                "tampering": 0,
+                "informationDisclosure": 2,
+                "denialOfService": 0
+              }
+            },
+            "labels": [
+              "Data Flow"
+            ],
+            "id": "c2bc3c6f-ad33-430d-9301-d4e88042da4c",
+            "source": {
+              "x": 293,
+              "y": 157
+            },
+            "target": {
+              "cell": "8670885f-53e7-4d99-b8e5-7137939c668c",
+              "port": "5e7f6726-db15-4b09-aff0-519a60b28048"
+            },
+            "vertices": [
+              {
+                "x": 370,
+                "y": 200
+              },
+              {
+                "x": 390,
+                "y": 220
+              }
+            ]
+          },
+          {
+            "shape": "flow",
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "targetMarker": {
+                  "name": "block"
+                },
+                "sourceMarker": {
+                  "name": ""
+                },
+                "strokeDasharray": null
+              }
+            },
+            "width": 200,
+            "height": 100,
+            "zIndex": 10,
+            "connector": "smooth",
+            "data": {
+              "type": "tm.Flow",
+              "name": "Data Flow",
+              "description": "",
+              "outOfScope": false,
+              "isTrustBoundary": false,
+              "reasonOutOfScope": "",
+              "hasOpenThreats": false,
+              "isBidirectional": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "protocol": "",
+              "threats": [],
+              "trustBoundaryIds": []
+            },
+            "labels": [
+              "Data Flow"
+            ],
+            "id": "c0f40f0d-ac01-4804-a7db-3ec606cc7c0d",
+            "source": {
+              "x": 560,
+              "y": 60
+            },
+            "target": {
+              "cell": "fbdaa8c5-67ed-4f80-a24c-fd678d66eb6e",
+              "port": "1c6ee9a6-8911-4d7b-80cc-c69e404bab7d"
+            }
+          },
+          {
+            "shape": "flow",
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "targetMarker": {
+                  "name": "block"
+                },
+                "sourceMarker": {
+                  "name": ""
+                },
+                "strokeDasharray": null
+              }
+            },
+            "width": 200,
+            "height": 100,
+            "zIndex": 10,
+            "connector": "smooth",
+            "data": {
+              "type": "tm.Flow",
+              "name": "Data Flow",
+              "description": "",
+              "outOfScope": false,
+              "isTrustBoundary": false,
+              "reasonOutOfScope": "",
+              "hasOpenThreats": false,
+              "isBidirectional": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "protocol": "",
+              "threats": [],
+              "trustBoundaryIds": []
+            },
+            "labels": [
+              "Data Flow"
+            ],
+            "id": "a02ff484-0841-4a68-8517-011ddac4b802",
+            "source": {
+              "x": 560,
+              "y": 240
+            },
+            "target": {
+              "cell": "4022eefe-49dd-47d0-851b-052b5a0eec02",
+              "port": "59f7b04f-94f9-4e8b-8668-0dddaa73f93d"
+            }
+          },
+          {
+            "position": {
+              "x": 704,
+              "y": 35
+            },
+            "size": {
+              "width": 120,
+              "height": 60
+            },
+            "attrs": {
+              "text": {
+                "text": "Database Akun"
+              },
+              "topLine": {
+                "strokeWidth": 1.5,
+                "strokeDasharray": null
+              },
+              "bottomLine": {
+                "strokeWidth": 1.5,
+                "strokeDasharray": null
+              }
+            },
+            "visible": true,
+            "shape": "store",
+            "ports": {
+              "groups": {
+                "top": {
+                  "position": "top",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "right": {
+                  "position": "right",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "bottom": {
+                  "position": "bottom",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "left": {
+                  "position": "left",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                }
+              },
+              "items": [
+                {
+                  "group": "top",
+                  "id": "b7bcdc3e-2bc7-4f12-b6c1-03ceaa7243bb"
+                },
+                {
+                  "group": "right",
+                  "id": "46427411-4a58-4abe-a1c5-6bfbaa462b58"
+                },
+                {
+                  "group": "bottom",
+                  "id": "b966d9dd-111f-4561-b336-223e83254ea0"
+                },
+                {
+                  "group": "left",
+                  "id": "1c6ee9a6-8911-4d7b-80cc-c69e404bab7d"
+                }
+              ]
+            },
+            "id": "fbdaa8c5-67ed-4f80-a24c-fd678d66eb6e",
+            "zIndex": 11,
+            "data": {
+              "type": "tm.Store",
+              "name": "Database Akun",
+              "description": "",
+              "outOfScope": false,
+              "isTrustBoundary": false,
+              "reasonOutOfScope": "",
+              "hasOpenThreats": false,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "storesCredentials": false,
+              "storesInventory": false,
+              "threats": []
+            }
+          },
+          {
+            "position": {
+              "x": 691,
+              "y": 210
+            },
+            "size": {
+              "width": 112.5,
+              "height": 60
+            },
+            "attrs": {
+              "text": {
+                "text": "Database Audit \n& Auth Log"
+              },
+              "body": {
+                "stroke": "#333333",
+                "strokeWidth": 1.5,
+                "strokeDasharray": null
+              }
+            },
+            "visible": true,
+            "shape": "actor",
+            "ports": {
+              "groups": {
+                "top": {
+                  "position": "top",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "right": {
+                  "position": "right",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "bottom": {
+                  "position": "bottom",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "left": {
+                  "position": "left",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                }
+              },
+              "items": [
+                {
+                  "group": "top",
+                  "id": "5636e0c7-ca05-4fd4-b747-5d7b3e167ba2"
+                },
+                {
+                  "group": "right",
+                  "id": "d2c770db-d486-4430-9a71-fcdd8f29e3c9"
+                },
+                {
+                  "group": "bottom",
+                  "id": "8a2cd1be-df48-4bd2-ab93-67b32fa6dbb7"
+                },
+                {
+                  "group": "left",
+                  "id": "59f7b04f-94f9-4e8b-8668-0dddaa73f93d"
+                }
+              ]
+            },
+            "id": "4022eefe-49dd-47d0-851b-052b5a0eec02",
+            "zIndex": 12,
+            "data": {
+              "type": "tm.Actor",
+              "name": "Database Audit \n& Auth Log",
+              "description": "",
+              "isTrustBoundary": false,
+              "outOfScope": false,
+              "reasonOutOfScope": "",
+              "hasOpenThreats": false,
+              "providesAuthentication": false,
+              "threats": []
+            }
+          }
+        ]
       }
     ],
     "diagramTop": 1,
     "reviewer": "Faris Aryaputra",
-    "threatTop": 0
+    "threatTop": 11
   }
 }
