@@ -576,10 +576,6 @@
                 "y": 110
               },
               {
-                "x": 360,
-                "y": 90
-              },
-              {
                 "x": 390,
                 "y": 65
               }
@@ -697,13 +693,13 @@
             "labels": [
               "Data Flow"
             ],
-            "id": "c0f40f0d-ac01-4804-a7db-3ec606cc7c0d",
+            "id": "f091a9b5-f72a-4360-bd08-15940b0a5fa9",
             "source": {
-              "x": 560,
-              "y": 60
+              "x": 565,
+              "y": 240
             },
             "target": {
-              "cell": "fbdaa8c5-67ed-4f80-a24c-fd678d66eb6e",
+              "cell": "231ffb1b-09a5-4a90-bed6-dfaacc8885b4",
               "port": "1c6ee9a6-8911-4d7b-80cc-c69e404bab7d"
             }
           },
@@ -743,14 +739,14 @@
             "labels": [
               "Data Flow"
             ],
-            "id": "a02ff484-0841-4a68-8517-011ddac4b802",
+            "id": "c0f40f0d-ac01-4804-a7db-3ec606cc7c0d",
             "source": {
               "x": 560,
-              "y": 240
+              "y": 60
             },
             "target": {
-              "cell": "4022eefe-49dd-47d0-851b-052b5a0eec02",
-              "port": "59f7b04f-94f9-4e8b-8668-0dddaa73f93d"
+              "cell": "fbdaa8c5-67ed-4f80-a24c-fd678d66eb6e",
+              "port": "1c6ee9a6-8911-4d7b-80cc-c69e404bab7d"
             }
           },
           {
@@ -767,11 +763,13 @@
                 "text": "Database Akun"
               },
               "topLine": {
-                "strokeWidth": 1.5,
+                "stroke": "red",
+                "strokeWidth": 2.5,
                 "strokeDasharray": null
               },
               "bottomLine": {
-                "strokeWidth": 1.5,
+                "stroke": "red",
+                "strokeWidth": 2.5,
                 "strokeDasharray": null
               }
             },
@@ -868,36 +866,74 @@
               "outOfScope": false,
               "isTrustBoundary": false,
               "reasonOutOfScope": "",
-              "hasOpenThreats": false,
+              "hasOpenThreats": true,
               "isALog": false,
               "isEncrypted": false,
               "isSigned": false,
               "storesCredentials": false,
               "storesInventory": false,
-              "threats": []
+              "threats": [
+                {
+                  "id": "828dc123-8260-45bd-8e9f-de6ba7c987a0",
+                  "title": "Data dimodifikasi",
+                  "status": "Open",
+                  "severity": "High",
+                  "type": "Tampering",
+                  "description": "Data akun dimodifikasi secara langsung tanpa otentikasi",
+                  "mitigation": "DB ACL, Audit DB",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 12,
+                  "score": "16"
+                },
+                {
+                  "id": "ae32a19e-9f67-4e02-b9dd-bf642f9a8248",
+                  "title": "Data akun bocor",
+                  "status": "Open",
+                  "severity": "High",
+                  "type": "Information disclosure",
+                  "description": "Pelanggaran privasi",
+                  "mitigation": "Enkripsi",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 13,
+                  "score": "16"
+                }
+              ],
+              "threatFrequency": {
+                "tampering": 1,
+                "repudiation": 0,
+                "informationDisclosure": 1,
+                "denialOfService": 0
+              }
             }
           },
           {
             "position": {
-              "x": 691,
+              "x": 704,
               "y": 210
             },
             "size": {
-              "width": 112.5,
+              "width": 120,
               "height": 60
             },
             "attrs": {
               "text": {
-                "text": "Database Audit \n& Auth Log"
+                "text": "Database Audit\n& Auth Log"
               },
-              "body": {
-                "stroke": "#333333",
-                "strokeWidth": 1.5,
+              "topLine": {
+                "stroke": "red",
+                "strokeWidth": 2.5,
+                "strokeDasharray": null
+              },
+              "bottomLine": {
+                "stroke": "red",
+                "strokeWidth": 2.5,
                 "strokeDasharray": null
               }
             },
             "visible": true,
-            "shape": "actor",
+            "shape": "store",
             "ports": {
               "groups": {
                 "top": {
@@ -964,34 +1000,91 @@
               "items": [
                 {
                   "group": "top",
-                  "id": "5636e0c7-ca05-4fd4-b747-5d7b3e167ba2"
+                  "id": "b7bcdc3e-2bc7-4f12-b6c1-03ceaa7243bb"
                 },
                 {
                   "group": "right",
-                  "id": "d2c770db-d486-4430-9a71-fcdd8f29e3c9"
+                  "id": "46427411-4a58-4abe-a1c5-6bfbaa462b58"
                 },
                 {
                   "group": "bottom",
-                  "id": "8a2cd1be-df48-4bd2-ab93-67b32fa6dbb7"
+                  "id": "b966d9dd-111f-4561-b336-223e83254ea0"
                 },
                 {
                   "group": "left",
-                  "id": "59f7b04f-94f9-4e8b-8668-0dddaa73f93d"
+                  "id": "1c6ee9a6-8911-4d7b-80cc-c69e404bab7d"
                 }
               ]
             },
-            "id": "4022eefe-49dd-47d0-851b-052b5a0eec02",
+            "id": "231ffb1b-09a5-4a90-bed6-dfaacc8885b4",
             "zIndex": 12,
             "data": {
-              "type": "tm.Actor",
-              "name": "Database Audit \n& Auth Log",
+              "type": "tm.Store",
+              "name": "Database Audit\n& Auth Log",
               "description": "",
-              "isTrustBoundary": false,
               "outOfScope": false,
+              "isTrustBoundary": false,
               "reasonOutOfScope": "",
-              "hasOpenThreats": false,
-              "providesAuthentication": false,
-              "threats": []
+              "hasOpenThreats": true,
+              "isALog": false,
+              "isEncrypted": false,
+              "isSigned": false,
+              "storesCredentials": false,
+              "storesInventory": false,
+              "threats": [
+                {
+                  "id": "25871c72-fe03-4cf4-97e2-aed159579278",
+                  "title": "Perubahan Log",
+                  "status": "Open",
+                  "severity": "High",
+                  "type": "Tampering",
+                  "description": "Hilang jejak Forensik",
+                  "mitigation": "Immutable/append-only",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 16,
+                  "score": "16"
+                },
+                {
+                  "id": "8ad943d8-3dd4-4d0e-aafa-38cc5cb4028a",
+                  "title": "Penyangkalan Aktivitas",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "type": "Repudiation",
+                  "description": "Bukti tidak kuat",
+                  "mitigation": "Signed Log, Timestamp, Blockchain",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 17,
+                  "score": "9"
+                },
+                {
+                  "id": "f3b352b2-e726-4956-8599-82b3a55819b1",
+                  "title": "Audit Log Bocot",
+                  "status": "Open",
+                  "severity": "High",
+                  "type": "Information disclosure",
+                  "description": "informasi internal terbuka",
+                  "mitigation": "kontrol akses, enkripsi",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 18,
+                  "score": "16"
+                }
+              ],
+              "threatFrequency": {
+                "tampering": 1,
+                "repudiation": 1,
+                "informationDisclosure": 1,
+                "denialOfService": 0
+              }
+            },
+            "tools": {
+              "items": [
+                "boundary",
+                "button-remove"
+              ],
+              "name": null
             }
           }
         ]
@@ -999,6 +1092,6 @@
     ],
     "diagramTop": 1,
     "reviewer": "Faris Aryaputra",
-    "threatTop": 11
+    "threatTop": 18
   }
 }
