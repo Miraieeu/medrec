@@ -1259,8 +1259,8 @@
                 "text": "Doctor"
               },
               "body": {
-                "stroke": "#333333",
-                "strokeWidth": 1.5,
+                "stroke": "red",
+                "strokeWidth": 2.5,
                 "strokeDasharray": null
               }
             },
@@ -1357,9 +1357,40 @@
               "isTrustBoundary": false,
               "outOfScope": false,
               "reasonOutOfScope": "",
-              "hasOpenThreats": false,
+              "hasOpenThreats": true,
               "providesAuthentication": false,
-              "threats": []
+              "threats": [
+                {
+                  "id": "d18175ed-4007-49be-bc91-0c82cdc65d37",
+                  "title": "Akun dokter dicuri",
+                  "status": "Mitigated",
+                  "severity": "Critical",
+                  "type": "Spoofing",
+                  "description": "Diagnosa & Terapi salah",
+                  "mitigation": "pengawasan dan penggunaan jaringan lokal yang ketat",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 34,
+                  "score": "20"
+                },
+                {
+                  "id": "7038f799-2337-4b45-8ca8-7addc7158a77",
+                  "title": "Dokter menyangkal tindakan yang telah diambil",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "type": "Repudiation",
+                  "description": "Masalah Hukum ",
+                  "mitigation": "Audit Log yang terhubung dengan blockchain",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 35,
+                  "score": "12"
+                }
+              ],
+              "threatFrequency": {
+                "spoofing": 1,
+                "repudiation": 1
+              }
             }
           },
           {
@@ -1660,23 +1691,42 @@
                   "new": false,
                   "number": 31,
                   "score": "16"
+                },
+                {
+                  "id": "b4684137-969e-4ea6-aaed-c685305e5ad6",
+                  "title": "Riwayat Pasien Bocor",
+                  "status": "Mitigated",
+                  "severity": "Critical",
+                  "type": "Information disclosure",
+                  "description": "Pelanggaran privasi",
+                  "mitigation": "Field Masking, Sensor NIK",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 32,
+                  "score": "20"
+                },
+                {
+                  "id": "655b8df8-626f-4c10-817d-27f1c07e9026",
+                  "title": "Input berulang kali ",
+                  "status": "Mitigated",
+                  "severity": "Medium",
+                  "type": "Denial of service",
+                  "description": "Delay layanan",
+                  "mitigation": "Throttling",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 33,
+                  "score": "9"
                 }
               ],
               "threatFrequency": {
                 "spoofing": 0,
                 "tampering": 1,
                 "repudiation": 0,
-                "informationDisclosure": 0,
-                "denialOfService": 0,
+                "informationDisclosure": 1,
+                "denialOfService": 1,
                 "elevationOfPrivilege": 0
               }
-            },
-            "tools": {
-              "items": [
-                "boundary",
-                "button-remove"
-              ],
-              "name": null
             }
           },
           {
@@ -1693,8 +1743,8 @@
                 "text": "Melakukan\nPemeriksaan\nPasien"
               },
               "body": {
-                "stroke": "#333333",
-                "strokeWidth": 1.5,
+                "stroke": "red",
+                "strokeWidth": 2.5,
                 "strokeDasharray": null
               }
             },
@@ -1791,12 +1841,60 @@
               "outOfScope": false,
               "isTrustBoundary": false,
               "reasonOutOfScope": "",
-              "hasOpenThreats": false,
+              "hasOpenThreats": true,
               "handlesCardPayment": false,
               "handlesGoodsOrServices": false,
               "isWebApplication": false,
               "privilegeLevel": "",
-              "threats": []
+              "threats": [
+                {
+                  "id": "15b149b1-b303-4bdb-9006-670df9649c7c",
+                  "title": "Hasil Pemeriksaan diubah",
+                  "status": "Open",
+                  "severity": "Critical",
+                  "type": "Tampering",
+                  "description": "Data pasien yang sudah final dapat diubah-ubah sehingga salah pengobatan",
+                  "mitigation": "Integrity Check, Finalisasi saat sudah SEND oleh dokter (tidak bisa diubah)",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 36,
+                  "score": "20"
+                },
+                {
+                  "id": "7aafd351-8ee1-4999-bd4e-8a5dc61b5df0",
+                  "title": "Tiada jejak Finalisasi",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "type": "Repudiation",
+                  "description": "Audit gagal",
+                  "mitigation": "Status Final + Audit Log yang terhubung dengan blockchain",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 37,
+                  "score": "12"
+                },
+                {
+                  "id": "84aace82-ab7f-42d9-852f-e7abfddf2c60",
+                  "title": "SOAP Bocor",
+                  "status": "Open",
+                  "severity": "TBD",
+                  "type": "Information disclosure",
+                  "description": "Pelanggaran Privasi",
+                  "mitigation": "Enkripsi dan pengamanan jaringan lokal",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 38,
+                  "score": "20"
+                }
+              ],
+              "threatFrequency": {
+                "spoofing": 0,
+                "tampering": 1,
+                "repudiation": 1,
+                "informationDisclosure": 1,
+                "denialOfService": 0,
+                "elevationOfPrivilege": 0
+              }
             }
           },
           {
@@ -2424,6 +2522,6 @@
     ],
     "diagramTop": 2,
     "reviewer": "Faris Aryaputra",
-    "threatTop": 31
+    "threatTop": 38
   }
 }
