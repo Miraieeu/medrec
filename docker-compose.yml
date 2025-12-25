@@ -32,6 +32,9 @@ services:
       PORT: 4000
       DATABASE_URL: postgresql://medrec:medrec@db:5432/medrec
       JWT_SECRET: supersecret
+      RPC_URL: ${RPC_URL}
+      PRIVATE_KEY: ${PRIVATE_KEY}
+      BLOCKCHAIN_ENABLED: ${BLOCKCHAIN_ENABLED}
     depends_on:
       - db
     networks:
