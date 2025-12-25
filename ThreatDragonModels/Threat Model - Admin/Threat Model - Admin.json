@@ -1111,8 +1111,8 @@
                 "text": "Pendaftaran"
               },
               "body": {
-                "stroke": "#333333",
-                "strokeWidth": 1.5,
+                "stroke": "red",
+                "strokeWidth": 2.5,
                 "strokeDasharray": null
               }
             },
@@ -1209,126 +1209,40 @@
               "isTrustBoundary": false,
               "outOfScope": false,
               "reasonOutOfScope": "",
-              "hasOpenThreats": false,
+              "hasOpenThreats": true,
               "providesAuthentication": false,
-              "threats": []
-            }
-          },
-          {
-            "position": {
-              "x": 150,
-              "y": 301
-            },
-            "size": {
-              "width": 112.5,
-              "height": 60
-            },
-            "attrs": {
-              "text": {
-                "text": "Nurse"
-              },
-              "body": {
-                "stroke": "#333333",
-                "strokeWidth": 1.5,
-                "strokeDasharray": null
+              "threats": [
+                {
+                  "id": "4748e88c-f85b-4ba1-8f4b-1119e8ba5b02",
+                  "title": "User palsu menyamar pendaftaran",
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "type": "Spoofing",
+                  "description": "Data pasien fiktif",
+                  "mitigation": "Penggunaan sistem secara lokal, memperkuat akses lokal",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 22,
+                  "score": "16"
+                },
+                {
+                  "id": "61eb38d6-8f71-4e0d-ac37-d6f2fe85eb8f",
+                  "title": "Penyangkalan input data pasien",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "type": "Repudiation",
+                  "description": "Sengketa data",
+                  "mitigation": "Audit Log",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 23,
+                  "score": "9"
+                }
+              ],
+              "threatFrequency": {
+                "spoofing": 1,
+                "repudiation": 1
               }
-            },
-            "visible": true,
-            "shape": "actor",
-            "zIndex": 2,
-            "ports": {
-              "groups": {
-                "top": {
-                  "position": "top",
-                  "attrs": {
-                    "circle": {
-                      "r": 4,
-                      "magnet": true,
-                      "stroke": "#5F95FF",
-                      "strokeWidth": 1,
-                      "fill": "#fff",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  }
-                },
-                "right": {
-                  "position": "right",
-                  "attrs": {
-                    "circle": {
-                      "r": 4,
-                      "magnet": true,
-                      "stroke": "#5F95FF",
-                      "strokeWidth": 1,
-                      "fill": "#fff",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  }
-                },
-                "bottom": {
-                  "position": "bottom",
-                  "attrs": {
-                    "circle": {
-                      "r": 4,
-                      "magnet": true,
-                      "stroke": "#5F95FF",
-                      "strokeWidth": 1,
-                      "fill": "#fff",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  }
-                },
-                "left": {
-                  "position": "left",
-                  "attrs": {
-                    "circle": {
-                      "r": 4,
-                      "magnet": true,
-                      "stroke": "#5F95FF",
-                      "strokeWidth": 1,
-                      "fill": "#fff",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  }
-                }
-              },
-              "items": [
-                {
-                  "group": "top",
-                  "id": "98ab7ada-d2e8-4211-b951-dd282baaaec8"
-                },
-                {
-                  "group": "right",
-                  "id": "3efd3554-e3b0-460a-93bd-34c139e7749e"
-                },
-                {
-                  "group": "bottom",
-                  "id": "65a270f2-d934-4078-98be-37952422afa1"
-                },
-                {
-                  "group": "left",
-                  "id": "83e5645c-afe5-440c-800f-293cec4d911d"
-                }
-              ]
-            },
-            "id": "22e93176-5403-439e-b8f6-6ca0faf01dbe",
-            "data": {
-              "type": "tm.Actor",
-              "name": "Nurse",
-              "description": "",
-              "isTrustBoundary": false,
-              "outOfScope": false,
-              "reasonOutOfScope": "",
-              "hasOpenThreats": false,
-              "providesAuthentication": false,
-              "threats": []
             }
           },
           {
@@ -1462,8 +1376,8 @@
                 "text": "Membuat \nRekam Medis"
               },
               "body": {
-                "stroke": "#333333",
-                "strokeWidth": 1.5,
+                "stroke": "red",
+                "strokeWidth": 2.5,
                 "strokeDasharray": null
               }
             },
@@ -1560,12 +1474,60 @@
               "outOfScope": false,
               "isTrustBoundary": false,
               "reasonOutOfScope": "",
-              "hasOpenThreats": false,
+              "hasOpenThreats": true,
               "handlesCardPayment": false,
               "handlesGoodsOrServices": false,
               "isWebApplication": false,
               "privilegeLevel": "",
-              "threats": []
+              "threats": [
+                {
+                  "id": "cbb5f8d9-053d-487b-b00a-29fbb9fb1e21",
+                  "title": "Data pasien dimodifikasi",
+                  "status": "Open",
+                  "severity": "High",
+                  "type": "Tampering",
+                  "description": "Data medis salah",
+                  "mitigation": "Validation, checksum",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 25,
+                  "score": "16"
+                },
+                {
+                  "id": "c4e3ac47-b43b-4843-9f8a-9f6c813b71a8",
+                  "title": "Tidak ada jejak pembuatan RM",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "type": "Repudiation",
+                  "description": "Audit gagal",
+                  "mitigation": "Timestamp + user ID",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 26,
+                  "score": "9"
+                },
+                {
+                  "id": "3c9cbd00-a3b1-416d-88af-5012cb552801",
+                  "title": "Data sensitif terekspos",
+                  "status": "Open",
+                  "severity": "Critical",
+                  "type": "Information disclosure",
+                  "description": "Pelanggaran privasi",
+                  "mitigation": "Encryption, penggunaan secara lokal",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 27,
+                  "score": "20"
+                }
+              ],
+              "threatFrequency": {
+                "spoofing": 0,
+                "tampering": 1,
+                "repudiation": 1,
+                "informationDisclosure": 1,
+                "denialOfService": 0,
+                "elevationOfPrivilege": 0
+              }
             }
           },
           {
@@ -1685,7 +1647,36 @@
               "handlesGoodsOrServices": false,
               "isWebApplication": false,
               "privilegeLevel": "",
-              "threats": []
+              "threats": [
+                {
+                  "id": "e47040da-5300-4c42-81ee-3e739bb0bc74",
+                  "title": "Data keluhan diubah",
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "type": "Tampering",
+                  "description": "Diagnosis keliru",
+                  "mitigation": "Validation",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 31,
+                  "score": "16"
+                }
+              ],
+              "threatFrequency": {
+                "spoofing": 0,
+                "tampering": 1,
+                "repudiation": 0,
+                "informationDisclosure": 0,
+                "denialOfService": 0,
+                "elevationOfPrivilege": 0
+              }
+            },
+            "tools": {
+              "items": [
+                "boundary",
+                "button-remove"
+              ],
+              "name": null
             }
           },
           {
@@ -1822,11 +1813,13 @@
                 "text": "Database Pasien"
               },
               "topLine": {
-                "strokeWidth": 1.5,
+                "stroke": "red",
+                "strokeWidth": 2.5,
                 "strokeDasharray": null
               },
               "bottomLine": {
-                "strokeWidth": 1.5,
+                "stroke": "red",
+                "strokeWidth": 2.5,
                 "strokeDasharray": null
               }
             },
@@ -1923,13 +1916,59 @@
               "outOfScope": false,
               "isTrustBoundary": false,
               "reasonOutOfScope": "",
-              "hasOpenThreats": false,
+              "hasOpenThreats": true,
               "isALog": false,
               "isEncrypted": false,
               "isSigned": false,
               "storesCredentials": false,
               "storesInventory": false,
-              "threats": []
+              "threats": [
+                {
+                  "id": "a78da79b-8ee8-49ab-ab5c-93f82dea7535",
+                  "title": "Rekam medis diubah langsung",
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "type": "Tampering",
+                  "description": "Kesalahan diagnosis",
+                  "mitigation": "audit DB",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 28,
+                  "score": "16"
+                },
+                {
+                  "id": "cc53f8b9-c463-46e2-88d6-212503dd00bc",
+                  "title": "Kebocoran data pasien",
+                  "status": "Mitigated",
+                  "severity": "Critical",
+                  "type": "Information disclosure",
+                  "description": "Legal & etika",
+                  "mitigation": "Enkripsi",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 29,
+                  "score": "20"
+                },
+                {
+                  "id": "c3375501-3ab4-4414-998a-e3f8692ed903",
+                  "title": "DB Overload Input",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "type": "Denial of service",
+                  "description": "Sistem Down",
+                  "mitigation": "Rate limit",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 30,
+                  "score": "12"
+                }
+              ],
+              "threatFrequency": {
+                "tampering": 1,
+                "repudiation": 0,
+                "informationDisclosure": 1,
+                "denialOfService": 1
+              }
             }
           },
           {
@@ -2231,12 +2270,160 @@
                 "y": 490
               }
             ]
+          },
+          {
+            "position": {
+              "x": 150,
+              "y": 291
+            },
+            "size": {
+              "width": 112.5,
+              "height": 60
+            },
+            "attrs": {
+              "text": {
+                "text": "Nurse"
+              },
+              "body": {
+                "stroke": "red",
+                "strokeWidth": 2.5,
+                "strokeDasharray": null
+              }
+            },
+            "visible": true,
+            "shape": "actor",
+            "ports": {
+              "groups": {
+                "top": {
+                  "position": "top",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "right": {
+                  "position": "right",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "bottom": {
+                  "position": "bottom",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "left": {
+                  "position": "left",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                }
+              },
+              "items": [
+                {
+                  "group": "top",
+                  "id": "98ab7ada-d2e8-4211-b951-dd282baaaec8"
+                },
+                {
+                  "group": "right",
+                  "id": "3efd3554-e3b0-460a-93bd-34c139e7749e"
+                },
+                {
+                  "group": "bottom",
+                  "id": "65a270f2-d934-4078-98be-37952422afa1"
+                },
+                {
+                  "group": "left",
+                  "id": "83e5645c-afe5-440c-800f-293cec4d911d"
+                }
+              ]
+            },
+            "id": "6294f2d1-4814-47e1-b98a-1e455d858b95",
+            "data": {
+              "type": "tm.Actor",
+              "name": "Nurse",
+              "description": "",
+              "isTrustBoundary": false,
+              "outOfScope": false,
+              "reasonOutOfScope": "",
+              "hasOpenThreats": true,
+              "providesAuthentication": false,
+              "threats": [
+                {
+                  "id": "4748e88c-f85b-4ba1-8f4b-1119e8ba5b02",
+                  "title": "Akun Perawat disalahgunakan",
+                  "status": "Mitigated",
+                  "severity": "High",
+                  "type": "Spoofing",
+                  "description": "Data SOAP salah",
+                  "mitigation": "Penggunaan sistem secara lokal, memperkuat akses lokal, Session Control",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 22,
+                  "score": "16"
+                },
+                {
+                  "id": "61eb38d6-8f71-4e0d-ac37-d6f2fe85eb8f",
+                  "title": "Penyangkalan input data sOAP",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "type": "Repudiation",
+                  "description": "Audit tidak valid",
+                  "mitigation": "Immutable audit log",
+                  "modelType": "STRIDE",
+                  "new": false,
+                  "number": 23,
+                  "score": "9"
+                }
+              ],
+              "threatFrequency": {
+                "spoofing": 2,
+                "repudiation": 2
+              }
+            },
+            "zIndex": 11
           }
         ]
       }
     ],
     "diagramTop": 2,
     "reviewer": "Faris Aryaputra",
-    "threatTop": 21
+    "threatTop": 31
   }
 }
