@@ -3,7 +3,7 @@
   "summary": {
     "title": "Threat Model - Admin",
     "owner": "Faris Aryaputra",
-    "description": "Threat Model DFD Level 1 - Admin (Mengubah data User dan Audit Log dan Auth)",
+    "description": "Threat Model DFD Level 1",
     "id": 0
   },
   "detail": {
@@ -1091,7 +1091,7 @@
       },
       {
         "id": 1,
-        "title": "User",
+        "title": "User ",
         "diagramType": "STRIDE",
         "placeholder": "New STRIDE diagram description",
         "thumbnail": "./public/content/images/thumbnail.stride.jpg",
