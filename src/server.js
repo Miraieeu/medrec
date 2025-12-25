@@ -10,6 +10,7 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const swagger_1 = require("./config/swagger");
+const auditRoutes = require("./routes/audit");
 const authJWT_1 = require("./middleware/authJWT");
 const requireRole_1 = require("./middleware/requireRole");
 const errorHandler_1 = require("./middleware/errorHandler");
@@ -28,10 +29,7 @@ if (!process.env.JWT_SECRET) {
 }
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 4000;
-app.get("/__ping", (_req, res) => {
-    console.log("PING HIT");
-    res.send("pong");
-});
+app.use("/api/audits", auditRoutes);
 /**
  * ======================
  * GLOBAL MIDDLEWARE

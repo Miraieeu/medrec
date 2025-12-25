@@ -67,7 +67,7 @@ async function login(req, res) {
             userAgent,
         },
     });
-    return res.json({ accessToken });
+    return res.json({ token: accessToken });
 }
 /**
  * LOGOUT (dipanggil manual dari route)

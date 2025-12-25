@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { decodeJWT } from "@/utils/jwt";
 import type { UserRole } from "@/types/role";
+import { getToken } from "@/services/auth";
 
 type AuthState = {
   ready: boolean;
@@ -18,7 +19,7 @@ export function useAuth(): AuthState {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem("apiToken");
+    const token = getToken();
     if (!token) {
       setState({ ready: true, authenticated: false, role: null });
       return;

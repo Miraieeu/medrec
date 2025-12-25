@@ -22,11 +22,15 @@ type AuditLog = {
   entity: string;
   entityId: number;
   createdAt: string;
+  auditHash: string;
+  blockchainTxHash?: string | null;
+  blockchainCommittedAt?: string | null;
   user: {
     email: string;
     role: string;
   };
 };
+
 
 export default function AuditPage() {
   const [authLogs, setAuthLogs] = useState<AuthLog[]>([]);
@@ -110,33 +114,62 @@ export default function AuditPage() {
             <thead className="bg-gray-100">
               <tr>
                 <th className="border p-2">Waktu</th>
-                <th className="border p-2">User</th>
-                <th className="border p-2">Aksi</th>
-                <th className="border p-2">Entity</th>
-                <th className="border p-2">Entity ID</th>
+    <th className="border p-2">User</th>
+    <th className="border p-2">Aksi</th>
+    <th className="border p-2">Entity</th>
+    <th className="border p-2">Audit Hash</th>
+    <th className="border p-2">Blockchain</th>
               </tr>
             </thead>
             <tbody>
-              {auditLogs.map((log) => (
-                <tr key={log.id}>
-                  <td className="border p-2">
-                    {new Date(log.createdAt).toLocaleString()}
-                  </td>
-                  <td className="border p-2">
-                    {log.user.email}
-                  </td>
-                  <td className="border p-2">
-                    {log.action}
-                  </td>
-                  <td className="border p-2">
-                    {log.entity}
-                  </td>
-                  <td className="border p-2">
-                    {log.entityId}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+  {auditLogs.map((log) => (
+    <tr key={log.id}>
+      {/* WAKTU */}
+      <td className="border p-2">
+        {new Date(log.createdAt).toLocaleString()}
+      </td>
+
+      {/* USER */}
+      <td className="border p-2">
+        {log.user.email}
+        <div className="text-xs text-gray-500">
+          {log.user.role}
+        </div>
+      </td>
+
+      {/* AKSI */}
+      <td className="border p-2">
+        {log.action}
+      </td>
+
+      {/* ENTITY */}
+      <td className="border p-2">
+        {log.entity} #{log.entityId}
+      </td>
+
+      {/* AUDIT HASH */}
+      <td className="border p-2 font-mono text-xs">
+        {log.auditHash
+          ? `${log.auditHash.slice(0, 12)}...`
+          : "-"}
+      </td>
+
+      {/* BLOCKCHAIN STATUS */}
+      <td className="border p-2 text-center">
+        {log.blockchainTxHash ? (
+          <span className="text-green-600 font-semibold">
+            ✅ Committed
+          </span>
+        ) : (
+          <span className="text-yellow-600 font-semibold">
+            ⏳ Pending
+          </span>
+        )}
+      </td>
+    </tr>
+  ))}
+</tbody>
+
           </table>
         </section>
 

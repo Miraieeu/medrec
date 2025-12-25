@@ -27,6 +27,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "4000:4000"
+      - "5555:5555" 
     environment:
       PORT: 4000
       DATABASE_URL: postgresql://medrec:medrec@db:5432/medrec

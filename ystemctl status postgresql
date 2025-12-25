@@ -1,0 +1,8 @@
+[0;1;32m●[0m postgresql.service - PostgreSQL RDBMS
+     Loaded: loaded (]8;;file://miraieeu/usr/lib/systemd/system/postgresql.service/usr/lib/systemd/system/postgresql.service]8;;; [0;1;32menabled[0m; preset: [0;1;32menabled[0m)
+     Active: [0;1;32mactive (exited)[0m since Thu 2025-12-25 14:00:30 WIB; 35s ago
+   Main PID: 276351 (code=exited, status=0/SUCCESS)
+        CPU: 2ms
+
+Dec 25 14:00:30 miraieeu systemd[1]: Starting postgresql.service - PostgreSQL RDBMS...
+Dec 25 14:00:30 miraieeu systemd[1]: Finished postgresql.service - PostgreSQL RDBMS.

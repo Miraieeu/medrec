@@ -8,11 +8,12 @@ import { setApiToken } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
-
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -21,7 +22,7 @@ export default function LoginPage() {
 
     try {
       const { accessToken } = await login(email, password);
-
+    
       // 🔑 simpan token sebelum redirect
       setApiToken(accessToken);
 

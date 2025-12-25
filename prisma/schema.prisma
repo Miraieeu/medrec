@@ -134,6 +134,10 @@ model AuditLog {
   entityId Int
   metadata Json?
 
+  auditHash              String?   @db.VarChar(66)
+  blockchainTxHash       String?   @db.VarChar(66)
+  blockchainCommittedAt  DateTime?
+
   createdAt DateTime @default(now())
 }
 
