@@ -2390,6 +2390,7 @@
             },
             "visible": true,
             "shape": "actor",
+            "zIndex": 11,
             "ports": {
               "groups": {
                 "top": {
@@ -2514,8 +2515,7 @@
                 "spoofing": 2,
                 "repudiation": 2
               }
-            },
-            "zIndex": 11
+            }
           }
         ]
       }
