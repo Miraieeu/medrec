@@ -38,6 +38,7 @@
             },
             "visible": true,
             "shape": "actor",
+            "zIndex": 1,
             "ports": {
               "groups": {
                 "top": {
@@ -121,7 +122,6 @@
               ]
             },
             "id": "900a8068-0408-420e-a74c-2bc2b2107088",
-            "zIndex": 1,
             "data": {
               "type": "tm.Actor",
               "name": "admin",
@@ -186,6 +186,7 @@
             },
             "visible": true,
             "shape": "process",
+            "zIndex": 2,
             "ports": {
               "groups": {
                 "top": {
@@ -269,7 +270,6 @@
               ]
             },
             "id": "235b1b15-4644-4e49-9843-f013b160a0b9",
-            "zIndex": 2,
             "data": {
               "type": "tm.Process",
               "name": "Mengelola\nakun User",
@@ -354,6 +354,7 @@
             },
             "visible": true,
             "shape": "process",
+            "zIndex": 3,
             "ports": {
               "groups": {
                 "top": {
@@ -437,7 +438,6 @@
               ]
             },
             "id": "8670885f-53e7-4d99-b8e5-7137939c668c",
-            "zIndex": 3,
             "data": {
               "type": "tm.Process",
               "name": "Melihat Audit\n& Auth Log",
@@ -775,6 +775,7 @@
             },
             "visible": true,
             "shape": "store",
+            "zIndex": 11,
             "ports": {
               "groups": {
                 "top": {
@@ -858,7 +859,6 @@
               ]
             },
             "id": "fbdaa8c5-67ed-4f80-a24c-fd678d66eb6e",
-            "zIndex": 11,
             "data": {
               "type": "tm.Store",
               "name": "Database Akun",
@@ -934,6 +934,7 @@
             },
             "visible": true,
             "shape": "store",
+            "zIndex": 12,
             "ports": {
               "groups": {
                 "top": {
@@ -1017,7 +1018,6 @@
               ]
             },
             "id": "231ffb1b-09a5-4a90-bed6-dfaacc8885b4",
-            "zIndex": 12,
             "data": {
               "type": "tm.Store",
               "name": "Database Audit\n& Auth Log",
