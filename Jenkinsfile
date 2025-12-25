@@ -5,7 +5,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Ganti URL git sesuai repo kamu
-                git 'https://github.com/Miraieeu/medrec/tree/Delete-Nextauth' 
+                git 'https://github.com/Miraieeu/medrec' 
             }
         }
         
