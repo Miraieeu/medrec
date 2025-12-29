@@ -1,0 +1,128 @@
+import "./types";
+import dotenv from "dotenv";
+dotenv.config({
+  path: process.env.NODE_ENV === "testing"
+    ? ".env.testing"
+    : ".env",
+});
+import { register } from "./metrics";
+import express from "express";
+import cors from "cors";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger";
+import crypto from "crypto";
+import { authJWT } from "./middleware/authJWT";
+import { requireRole } from "./middleware/requireRole";
+import { errorHandler } from "./middleware/errorHandler";
+
+// ROUTES
+import authRoutes from "./routes/auth";
+import healthRoutes from "./routes/health";
+import patientRoutes from "./routes/patients";
+import queueRoutes from "./routes/queues";
+import recordRoutes from "./routes/records";
+
+import auditLogs from "./routes/admin/auditLogs";
+import authLogs from "./routes/admin/authLogs";
+import users from "./routes/admin/user";
+
+// 🔐 GUARD JWT SECRET
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET is not defined");
+}
+
+const app = express();
+app.disable("x-powered-by");
+const PORT = process.env.PORT || 4000;
+
+
+app.get("/metrics", async (_req, res) => {
+  res.setHeader("Content-Type", register.contentType);
+  res.end(await register.metrics());
+});
+
+
+
+/**
+ * ======================
+ * GLOBAL MIDDLEWARE
+ * ======================
+ */
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
+app.use(express.json());
+
+/**
+ * ======================
+ * SWAGGER
+ * ======================
+ */
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+/**
+ * ======================
+ * PUBLIC ROUTES
+ * ======================
+ */
+app.use("/api/auth", authRoutes);
+app.use("/api/health", healthRoutes);
+
+/**
+ * ======================
+ * ROLE-BASED ROUTERS
+ * ======================
+ */
+
+// REGISTRATION
+const registrationRouter = express.Router();
+registrationRouter.use(authJWT, requireRole(["registration"]));
+registrationRouter.use("/patients", patientRoutes);
+registrationRouter.use("/queues", queueRoutes);
+app.use("/api/registration", registrationRouter);
+
+// NURSE
+const nurseRouter = express.Router();
+nurseRouter.use(authJWT, requireRole(["nurse"]));
+nurseRouter.use("/queues", queueRoutes);
+nurseRouter.use("/records", recordRoutes);
+app.use("/api/nurse", nurseRouter);
+
+// DOCTOR
+const doctorRouter = express.Router();
+doctorRouter.use(authJWT, requireRole(["doctor"]));
+doctorRouter.use("/queues", queueRoutes);
+doctorRouter.use("/records", recordRoutes);
+app.use("/api/doctor", doctorRouter);
+
+// ADMIN
+const adminRouter = express.Router();
+adminRouter.use(authJWT, requireRole(["admin"]));
+adminRouter.use("/auditLogs", auditLogs);
+adminRouter.use("/authLogs", authLogs);
+adminRouter.use("/users", users);
+app.use("/api/admin", adminRouter);
+
+/**
+ * ======================
+ * ERROR HANDLER (LAST)
+ * ======================
+ */
+app.use(errorHandler);
+
+/**
+ * ======================
+ * SERVER START
+ * ======================
+ */
+app.listen(PORT, () => {
+  console.log(`🚀 API running on http://localhost:${PORT}`);
+  console.log(`📘 Swagger docs on http://localhost:${PORT}/api/docs`);
+});
+setInterval(() => {
+  console.log("server alive");
+}, 10000);
+

@@ -1,0 +1,106 @@
+version: "3.8"
+
+services:
+
+  # ======================
+  # DATABASE
+  # ======================
+  db:
+    image: postgres:15
+    container_name: medrec-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: medrec
+      POSTGRES_PASSWORD: medrec
+      POSTGRES_DB: medrec
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - medrec-network
+
+  # ======================
+  # BACKEND
+  # ======================
+  backend:
+    container_name: medrec-backend
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+      - "5555:5555" 
+    environment:
+      PORT: 4000
+      DATABASE_URL: postgresql://medrec:medrec@db:5432/medrec
+      JWT_SECRET: supersecret
+      RPC_URL: ${RPC_URL}
+      PRIVATE_KEY: ${PRIVATE_KEY}
+      BLOCKCHAIN_ENABLED: ${BLOCKCHAIN_ENABLED}
+    depends_on:
+      - db
+    networks:
+      - medrec-network
+
+  # ======================
+  # FRONTEND
+  # ======================
+  frontend:
+    container_name: medrec-frontend
+    build:
+      context: ./medrec-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    depends_on:
+      - backend
+    networks:
+      - medrec-network
+
+  # ======================
+  # PROMETHEUS
+  # ======================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - medrec-network
+
+  # ======================
+  # GRAFANA
+  # ======================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    depends_on:
+      - prometheus
+    networks:
+      - medrec-network
+
+  # ======================
+  # NODE EXPORTER (PERBAIKAN DI SINI)
+  # ======================
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    restart: unless-stopped
+    networks:          # <--- INI YANG TADI HILANG
+      - medrec-network # <--- HARUS SATU JARINGAN DENGAN PROMETHEUS
+
+networks:
+  medrec-network:
+    driver: bridge
+
+volumes:
+  pgdata:

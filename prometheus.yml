@@ -1,0 +1,18 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'medrec-backend'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['backend:4000'] # Pastikan nama hostnya sesuai service backend kamu
+      
+  - job_name: "node"
+    static_configs:
+      - targets:
+          - "node-exporter:9100"
