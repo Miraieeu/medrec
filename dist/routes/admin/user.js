@@ -120,7 +120,7 @@ router.patch("/:id", async (req, res) => {
             throw new AppError_1.AppError("Password must be at least 6 characters", 400);
         }
         data.password = await bcrypt_1.default.hash(password, 10);
-        metadata.password = "UPDATED";
+        metadata.passwordChanged = true;
     }
     if (Object.keys(data).length === 0) {
         throw new AppError_1.AppError("No changes provided", 400);

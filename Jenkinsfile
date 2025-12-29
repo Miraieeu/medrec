@@ -36,7 +36,7 @@ pipeline {
             sonarsource/sonar-scanner-cli \
             sonar-scanner \
               -Dsonar.projectKey=medrec-frontend \
-              -Dsonar.sources=medrec-frontend,src \
+              -Dsonar.sources=medrec-frontend \
               -Dsonar.exclusions=**/node_modules/**,**/dist/** \
               -Dsonar.host.url=http://172.17.0.1:9000 \
               -Dsonar.login=$SONAR_TOKEN

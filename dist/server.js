@@ -5,7 +5,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 require("./types");
 const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
+dotenv_1.default.config({
+    path: process.env.NODE_ENV === "testing"
+        ? ".env.testing"
+        : ".env",
+});
+const metrics_1 = require("./metrics");
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
@@ -27,10 +32,11 @@ if (!process.env.JWT_SECRET) {
     throw new Error("JWT_SECRET is not defined");
 }
 const app = (0, express_1.default)();
+app.disable("x-powered-by");
 const PORT = process.env.PORT || 4000;
-app.get("/__ping", (_req, res) => {
-    console.log("PING HIT");
-    res.send("pong");
+app.get("/metrics", async (_req, res) => {
+    res.setHeader("Content-Type", metrics_1.register.contentType);
+    res.end(await metrics_1.register.metrics());
 });
 /**
  * ======================
@@ -100,3 +106,6 @@ app.listen(PORT, () => {
     console.log(`🚀 API running on http://localhost:${PORT}`);
     console.log(`📘 Swagger docs on http://localhost:${PORT}/api/docs`);
 });
+setInterval(() => {
+    console.log("server alive");
+}, 10000);
