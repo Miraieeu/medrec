@@ -55,7 +55,7 @@ pipeline {
               -Dsonar.sources=medrec-frontend \
               -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/.next/** \
               -Dsonar.host.url=http://172.17.0.1:9000 \
-              -Dsonar.token=$SONAR_TOKEN
+              -Dsonar.login="$SONAR_TOKEN"
         '''
       }
     }
