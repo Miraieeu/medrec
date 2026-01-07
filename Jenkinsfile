@@ -56,7 +56,7 @@ pipeline {
           '''
         }
       }
-    
+     }
     stage('Docker Build') {
       steps {
         echo "Building Docker image..."
