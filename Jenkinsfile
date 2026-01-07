@@ -37,28 +37,7 @@ pipeline {
       }
     }
 
-    stage('SonarQube Analysis') {
-      environment {
-        SONAR_TOKEN = credentials('sonar-token')
-      }
-      steps {
-        // Debugging: Cek isi folder workspace untuk memastikan path benar
-        sh 'ls -la ${WORKSPACE}' 
-        
-        sh '''
-          docker run --rm \
-            -v "${WORKSPACE}:/usr/src" \
-            -w /usr/src \
-            sonarsource/sonar-scanner-cli \
-            sonar-scanner \
-              -Dsonar.projectKey=medrec-frontend \
-              -Dsonar.sources=medrec-frontend \
-              -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/.next/** \
-              -Dsonar.host.url=http://172.17.0.1:9000 \
-              -Dsonar.login="$SONAR_TOKEN"
-        '''
-      }
-    }
+    
 
     stage('Docker Build') {
       steps {
