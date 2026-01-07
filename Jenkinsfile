@@ -36,9 +36,27 @@ pipeline {
         }
       }
     }
-
+     stage('SonarQube Analysis') {
+      environment {
+        SONAR_PROJECT_KEY = 'medrec-frontend'
+      }
+      steps {
+        withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+          sh '''
+            docker run --rm \
+              -v "$PWD:/usr/src" \
+              -w /usr/src \
+              sonarsource/sonar-scanner-cli \
+              sonar-scanner \
+                -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+                -Dsonar.sources=medrec-frontend/src,medrec-frontend/app \
+                -Dsonar.exclusions=**/node_modules/**,**/.next/**,**/dist/** \
+                -Dsonar.host.url=http://localhost:9000 \
+                -Dsonar.login=$SONAR_TOKEN
+          '''
+        }
+      }
     
-
     stage('Docker Build') {
       steps {
         echo "Building Docker image..."
