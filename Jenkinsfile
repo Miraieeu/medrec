@@ -52,7 +52,7 @@ pipeline {
                 -Dsonar.sources=medrec-frontend/src,medrec-frontend/app \
                 -Dsonar.exclusions=**/node_modules/**,**/.next/**,**/dist/** \
                 -Dsonar.host.url=http://localhost:9000 \
-                -Dsonar.login=$SONAR_TOKEN
+                -Dsonar.login="$SONAR_TOKEN"
           '''
         }
       }
