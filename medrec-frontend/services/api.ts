@@ -9,8 +9,8 @@ export async function apiFetch(
   options: ApiFetchOptions = {}
 ) {
   const token = getToken();
-
-  const res = await fetch(`http://localhost:4000${path}`, {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const res = await fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",

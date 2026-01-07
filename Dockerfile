@@ -1,6 +1,7 @@
 # Gunakan base image Node versi 20
 FROM node:20
 
+
 # Buat folder kerja di dalam container
 WORKDIR /app
 
@@ -12,6 +13,7 @@ RUN npm install
 
 # Copy semua kode sumber ke dalam container
 COPY . .
+RUN npx prisma generate
 
 # Build TypeScript ke JavaScript (hasilnya di folder dist)
 RUN npm run build
