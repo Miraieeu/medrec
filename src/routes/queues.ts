@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../prisma";
 import { requireRole } from "../middleware/requireRole";
-import { logAudit } from "../utils/audit";
+import { createAuditLog } from "../services/auditLog.service";
 import { AuditAction } from "@prisma/client";
 import { AppError } from "../errors/AppError";
 import { authJWT } from "../middleware/authJWT";
@@ -33,7 +33,6 @@ function getQueueDate() {
 // =======================
 // CREATE QUEUE (REGISTRATION)
 // =======================
-
 router.post(
   "/",
   authJWT,
@@ -56,14 +55,10 @@ router.post(
     const { start, end } = getTodayRange();
     const queueDate = getQueueDate();
 
-    // ❗ Cegah pasien masuk antrian dua kali di hari yang sama
     const exists = await prisma.queue.findFirst({
       where: {
         patientId,
-        date: {
-          gte: start,
-          lte: end,
-        },
+        date: { gte: start, lte: end },
       },
     });
 
@@ -71,13 +66,9 @@ router.post(
       throw new AppError("Patient already in queue today", 409);
     }
 
-    // cari nomor terakhir hari ini
     const last = await prisma.queue.findFirst({
       where: {
-        date: {
-          gte: start,
-          lte: end,
-        },
+        date: { gte: start, lte: end },
       },
       orderBy: { number: "desc" },
     });
@@ -93,11 +84,16 @@ router.post(
       },
     });
 
-    await logAudit({
+    // 🔐 AUDIT: CREATE QUEUE
+    await createAuditLog({
       userId: req.user!.id,
       action: AuditAction.CREATE_QUEUE,
       entity: "Queue",
       entityId: queue.id,
+      metadata: {
+        patientId: patient.id,
+        queueNumber: queue.number,
+      },
     });
 
     res.status(201).json({
@@ -106,7 +102,6 @@ router.post(
     });
   }
 );
-
 
 // =======================
 // LIST TODAY QUEUE
@@ -120,10 +115,7 @@ router.get(
 
     const queues = await prisma.queue.findMany({
       where: {
-        date: {
-          gte: start,
-          lte: end,
-        },
+        date: { gte: start, lte: end },
       },
       include: {
         patient: {
@@ -149,11 +141,8 @@ router.get(
   }
 );
 
-
-
-
 // =======================
-// CALL QUEUE (NURSE)
+// CALL QUEUE (REGISTRATION → NURSE FLOW)
 // =======================
 router.patch(
   "/:id/call",
@@ -188,7 +177,8 @@ router.patch(
       },
     });
 
-    await logAudit({
+    // 🔐 AUDIT: CALL QUEUE
+    await createAuditLog({
       userId: req.user!.id,
       action: AuditAction.CALL_QUEUE,
       entity: "Queue",
@@ -204,7 +194,6 @@ router.patch(
     });
   }
 );
-
 
 // =======================
 // DONE QUEUE (DOCTOR)
@@ -248,7 +237,8 @@ router.patch(
       throw new AppError("No active medical record found", 400);
     }
 
-    await logAudit({
+    // 🔐 AUDIT: DONE QUEUE
+    await createAuditLog({
       userId: req.user!.id,
       action: AuditAction.DONE_QUEUE,
       entity: "Queue",
@@ -292,34 +282,30 @@ router.get(
 // =======================
 // SUMMARY TODAY
 // =======================
-router.get(
-  "/summary/today",
+router.get("/summary/today", async (_req, res) => {
+  const { start, end } = getTodayRange();
 
-  async (_req, res) => {
-    const { start, end } = getTodayRange();
+  const [waiting, called, done] = await Promise.all([
+    prisma.queue.count({
+      where: { date: { gte: start, lte: end }, status: "WAITING" },
+    }),
+    prisma.queue.count({
+      where: { date: { gte: start, lte: end }, status: "CALLED" },
+    }),
+    prisma.queue.count({
+      where: { date: { gte: start, lte: end }, status: "DONE" },
+    }),
+  ]);
 
-    const [waiting, called, done] = await Promise.all([
-      prisma.queue.count({
-        where: { date: { gte: start, lte: end }, status: "WAITING" },
-      }),
-      prisma.queue.count({
-        where: { date: { gte: start, lte: end }, status: "CALLED" },
-      }),
-      prisma.queue.count({
-        where: { date: { gte: start, lte: end }, status: "DONE" },
-      }),
-    ]);
-
-    res.json({
-      success: true,
-      data: {
-        waiting,
-        called,
-        done,
-        total: waiting + called + done,
-      },
-    });
-  }
-);
+  res.json({
+    success: true,
+    data: {
+      waiting,
+      called,
+      done,
+      total: waiting + called + done,
+    },
+  });
+});
 
 export default router;

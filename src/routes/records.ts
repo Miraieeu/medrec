@@ -4,7 +4,7 @@ import { prisma } from "../prisma";
 import { AppError } from "../errors/AppError";
 import { assertRecordEditable } from "../services/medicalRecord.service";
 import { AuditAction } from "@prisma/client";
-import { logAudit } from "../utils/audit";
+import { createAuditLog } from "../services/auditLog.service";
 import { authJWT } from "../middleware/authJWT";
 import { requireRole } from "../middleware/requireRole";
 
@@ -14,7 +14,6 @@ const router = Router();
  * ======================================================
  * GET RECORDS BY NIK (NURSE / DOCTOR)
  * ======================================================
- * GET /api/nurse/records/by-nik/:nik
  */
 router.get(
   "/by-nik/:nik",
@@ -65,7 +64,6 @@ router.get(
  * ======================================================
  * UPDATE NURSING SOAP (NURSE)
  * ======================================================
- * PATCH /api/records/:id/nursing
  */
 router.patch(
   "/:id/nursing",
@@ -100,7 +98,8 @@ router.patch(
       },
     });
 
-    await logAudit({
+    // 🔐 AUDIT: UPDATE NURSING
+    await createAuditLog({
       userId: req.user!.id,
       action: AuditAction.UPDATE_NURSING,
       entity: "MedicalRecord",
@@ -115,12 +114,10 @@ router.patch(
   }
 );
 
-
 /**
  * ======================================================
  * FINALIZE RECORD (DOCTOR)
  * ======================================================
- * PATCH /api/records/:id/finalize
  */
 router.patch(
   "/:id/finalize",
@@ -146,7 +143,6 @@ router.patch(
       throw new AppError("objective and assessment are required", 400);
     }
 
-    // 🔍 Ambil record + queue
     const record = await prisma.medicalRecord.findUnique({
       where: { id: recordId },
       include: {
@@ -158,7 +154,6 @@ router.patch(
       throw new AppError("Medical record not found", 404);
     }
 
-    // 🔍 Cari queue aktif pasien hari ini
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
@@ -180,7 +175,6 @@ router.patch(
       throw new AppError("Active queue not found", 404);
     }
 
-    // 🔒 TRANSACTION
     await prisma.$transaction([
       prisma.medicalRecord.update({
         where: { id: recordId },
@@ -200,7 +194,8 @@ router.patch(
       }),
     ]);
 
-    await logAudit({
+    // 🔐 AUDIT: FINALIZE RECORD
+    await createAuditLog({
       userId: req.user!.id,
       action: AuditAction.FINALIZE_RECORD,
       entity: "MedicalRecord",
@@ -216,12 +211,10 @@ router.patch(
   }
 );
 
-
 /**
  * ======================================================
  * LIST RECORDS BY PATIENT ID
  * ======================================================
- * GET /api/records/patient/:patientId
  */
 router.get(
   "/patient/:patientId",
@@ -246,7 +239,6 @@ router.get(
  * ======================================================
  * GET RECORD BY ID
  * ======================================================
- * GET /api/records/:id
  */
 router.get(
   "/:id",

@@ -1,4 +1,4 @@
-require("dotenv").config({ path: "../.env" });
+require("dotenv").config();
 
 const fs = require("fs");
 const path = require("path");
@@ -8,7 +8,8 @@ const { ethers } = require("ethers");
 // ===== 1. Compile =====
 const contractPath = path.join(__dirname, "AuditLedger.sol");
 const source = fs.readFileSync(contractPath, "utf8");
-
+console.log("DEBUG PK =", process.env.BLOCKCHAIN_PRIVATE_KEY);
+console.log("DEBUG PK LENGTH =", process.env.BLOCKCHAIN_PRIVATE_KEY?.length);
 const input = {
   language: "Solidity",
   sources: {
@@ -38,7 +39,7 @@ const bytecode = contract.evm.bytecode.object;
 
 // ===== 2. Deploy =====
 (async () => {
-  const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
+  const provider = new ethers.JsonRpcProvider("http://localhost:8545");
   const wallet = new ethers.Wallet(
     process.env.BLOCKCHAIN_PRIVATE_KEY,
     provider

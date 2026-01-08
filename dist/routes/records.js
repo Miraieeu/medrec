@@ -9,7 +9,7 @@ const prisma_1 = require("../prisma");
 const AppError_1 = require("../errors/AppError");
 const medicalRecord_service_1 = require("../services/medicalRecord.service");
 const client_1 = require("@prisma/client");
-const audit_1 = require("../utils/audit");
+const auditLog_service_1 = require("../services/auditLog.service");
 const authJWT_1 = require("../middleware/authJWT");
 const requireRole_1 = require("../middleware/requireRole");
 const router = (0, express_1.Router)();
@@ -17,7 +17,6 @@ const router = (0, express_1.Router)();
  * ======================================================
  * GET RECORDS BY NIK (NURSE / DOCTOR)
  * ======================================================
- * GET /api/nurse/records/by-nik/:nik
  */
 router.get("/by-nik/:nik", authJWT_1.authJWT, (0, requireRole_1.requireRole)(["nurse", "doctor"]), async (req, res) => {
     const nik = String(req.params.nik || "").trim();
@@ -56,7 +55,6 @@ router.get("/by-nik/:nik", authJWT_1.authJWT, (0, requireRole_1.requireRole)(["n
  * ======================================================
  * UPDATE NURSING SOAP (NURSE)
  * ======================================================
- * PATCH /api/records/:id/nursing
  */
 router.patch("/:id/nursing", authJWT_1.authJWT, (0, requireRole_1.requireRole)(["nurse"]), async (req, res) => {
     const recordId = Number(req.params.id);
@@ -77,7 +75,8 @@ router.patch("/:id/nursing", authJWT_1.authJWT, (0, requireRole_1.requireRole)([
             nursingPlan,
         },
     });
-    await (0, audit_1.logAudit)({
+    // 🔐 AUDIT: UPDATE NURSING
+    await (0, auditLog_service_1.createAuditLog)({
         userId: req.user.id,
         action: client_1.AuditAction.UPDATE_NURSING,
         entity: "MedicalRecord",
@@ -93,7 +92,6 @@ router.patch("/:id/nursing", authJWT_1.authJWT, (0, requireRole_1.requireRole)([
  * ======================================================
  * FINALIZE RECORD (DOCTOR)
  * ======================================================
- * PATCH /api/records/:id/finalize
  */
 router.patch("/:id/finalize", authJWT_1.authJWT, (0, requireRole_1.requireRole)(["doctor"]), async (req, res) => {
     const recordId = Number(req.params.id);
@@ -105,7 +103,6 @@ router.patch("/:id/finalize", authJWT_1.authJWT, (0, requireRole_1.requireRole)(
     if (!objective || !assessment) {
         throw new AppError_1.AppError("objective and assessment are required", 400);
     }
-    // 🔍 Ambil record + queue
     const record = await prisma_1.prisma.medicalRecord.findUnique({
         where: { id: recordId },
         include: {
@@ -115,7 +112,6 @@ router.patch("/:id/finalize", authJWT_1.authJWT, (0, requireRole_1.requireRole)(
     if (!record) {
         throw new AppError_1.AppError("Medical record not found", 404);
     }
-    // 🔍 Cari queue aktif pasien hari ini
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const todayEnd = new Date();
@@ -133,7 +129,6 @@ router.patch("/:id/finalize", authJWT_1.authJWT, (0, requireRole_1.requireRole)(
     if (!queue) {
         throw new AppError_1.AppError("Active queue not found", 404);
     }
-    // 🔒 TRANSACTION
     await prisma_1.prisma.$transaction([
         prisma_1.prisma.medicalRecord.update({
             where: { id: recordId },
@@ -151,7 +146,8 @@ router.patch("/:id/finalize", authJWT_1.authJWT, (0, requireRole_1.requireRole)(
             data: { status: "DONE" },
         }),
     ]);
-    await (0, audit_1.logAudit)({
+    // 🔐 AUDIT: FINALIZE RECORD
+    await (0, auditLog_service_1.createAuditLog)({
         userId: req.user.id,
         action: client_1.AuditAction.FINALIZE_RECORD,
         entity: "MedicalRecord",
@@ -168,7 +164,6 @@ router.patch("/:id/finalize", authJWT_1.authJWT, (0, requireRole_1.requireRole)(
  * ======================================================
  * LIST RECORDS BY PATIENT ID
  * ======================================================
- * GET /api/records/patient/:patientId
  */
 router.get("/patient/:patientId", authJWT_1.authJWT, (0, requireRole_1.requireRole)(["nurse", "doctor"]), async (req, res) => {
     const patientId = Number(req.params.patientId);
@@ -185,7 +180,6 @@ router.get("/patient/:patientId", authJWT_1.authJWT, (0, requireRole_1.requireRo
  * ======================================================
  * GET RECORD BY ID
  * ======================================================
- * GET /api/records/:id
  */
 router.get("/:id", authJWT_1.authJWT, (0, requireRole_1.requireRole)(["nurse", "doctor"]), async (req, res) => {
     const recordId = Number(req.params.id);

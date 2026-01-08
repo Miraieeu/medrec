@@ -1,5 +1,5 @@
 # Gunakan base image Node versi 20
-FROM node:20
+FROM node:18
 
 
 # Buat folder kerja di dalam container
@@ -7,6 +7,9 @@ WORKDIR /app
 
 # Copy package.json dulu biar caching efisien
 COPY package*.json ./
+COPY dist ./dist/
+COPY blockchain ./blockchain/
+
 
 # Install semua dependencies (termasuk devDependencies buat build tsc)
 RUN npm install

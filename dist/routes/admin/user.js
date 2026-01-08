@@ -8,6 +8,7 @@ const prisma_1 = require("../../prisma");
 const AppError_1 = require("../../errors/AppError");
 const client_1 = require("@prisma/client");
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const auditLog_service_1 = require("../../services/auditLog.service");
 const router = (0, express_1.Router)();
 /**
  * =======================
@@ -74,7 +75,18 @@ router.post("/", async (req, res) => {
             email,
             name,
             password: hashed,
-            role, // ⬅️ TANPA id
+            role,
+        },
+    });
+    // 🔐 AUDIT: CREATE USER
+    await (0, auditLog_service_1.createAuditLog)({
+        userId: req.user.id,
+        action: client_1.AuditAction.CREATE_USER,
+        entity: "User",
+        entityId: user.id,
+        metadata: {
+            email: user.email,
+            role: user.role,
         },
     });
     res.status(201).json({
@@ -129,14 +141,13 @@ router.patch("/:id", async (req, res) => {
         where: { id: userId },
         data,
     });
-    await prisma_1.prisma.auditLog.create({
-        data: {
-            userId: req.user.id,
-            action: client_1.AuditAction.UPDATE_USER,
-            entity: "User",
-            entityId: userId,
-            metadata,
-        },
+    // 🔐 AUDIT: UPDATE USER
+    await (0, auditLog_service_1.createAuditLog)({
+        userId: req.user.id,
+        action: client_1.AuditAction.UPDATE_USER,
+        entity: "User",
+        entityId: userId,
+        metadata,
     });
     res.json({ success: true });
 });
@@ -156,21 +167,25 @@ router.delete("/:id", async (req, res) => {
     if (!user)
         throw new AppError_1.AppError("User not found", 404);
     await prisma_1.prisma.user.delete({ where: { id: userId } });
-    await prisma_1.prisma.auditLog.create({
-        data: {
-            userId: req.user.id,
-            action: client_1.AuditAction.DELETE_USER,
-            entity: "User",
-            entityId: userId,
-            metadata: {
-                email: user.email,
-                role: user.role,
-            },
+    // 🔐 AUDIT: DELETE USER
+    await (0, auditLog_service_1.createAuditLog)({
+        userId: req.user.id,
+        action: client_1.AuditAction.DELETE_USER,
+        entity: "User",
+        entityId: userId,
+        metadata: {
+            email: user.email,
+            role: user.role,
         },
     });
     res.json({ success: true });
 });
-// PATCH /api/admin/users/${id}/password
+/**
+ * =======================
+ * PATCH /api/admin/users/:id/password
+ * RESET PASSWORD
+ * =======================
+ */
 router.patch("/:id/password", async (req, res) => {
     const userId = Number(req.params.id);
     const { password } = req.body;
@@ -191,6 +206,16 @@ router.patch("/:id/password", async (req, res) => {
         where: { id: userId },
         data: {
             password: hashed,
+        },
+    });
+    // 🔐 AUDIT: RESET PASSWORD
+    await (0, auditLog_service_1.createAuditLog)({
+        userId: req.user.id,
+        action: client_1.AuditAction.UPDATE_USER,
+        entity: "User",
+        entityId: userId,
+        metadata: {
+            passwordChanged: true,
         },
     });
     res.json({

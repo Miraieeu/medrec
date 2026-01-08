@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const prisma_1 = require("../prisma");
 const requireRole_1 = require("../middleware/requireRole");
-const audit_1 = require("../utils/audit");
+const auditLog_service_1 = require("../services/auditLog.service");
 const client_1 = require("@prisma/client");
 const AppError_1 = require("../errors/AppError");
 const authJWT_1 = require("../middleware/authJWT");
@@ -42,26 +42,18 @@ router.post("/", authJWT_1.authJWT, (0, requireRole_1.requireRole)(["registratio
     }
     const { start, end } = getTodayRange();
     const queueDate = getQueueDate();
-    // ❗ Cegah pasien masuk antrian dua kali di hari yang sama
     const exists = await prisma_1.prisma.queue.findFirst({
         where: {
             patientId,
-            date: {
-                gte: start,
-                lte: end,
-            },
+            date: { gte: start, lte: end },
         },
     });
     if (exists) {
         throw new AppError_1.AppError("Patient already in queue today", 409);
     }
-    // cari nomor terakhir hari ini
     const last = await prisma_1.prisma.queue.findFirst({
         where: {
-            date: {
-                gte: start,
-                lte: end,
-            },
+            date: { gte: start, lte: end },
         },
         orderBy: { number: "desc" },
     });
@@ -74,11 +66,16 @@ router.post("/", authJWT_1.authJWT, (0, requireRole_1.requireRole)(["registratio
             createdById: req.user.id,
         },
     });
-    await (0, audit_1.logAudit)({
+    // 🔐 AUDIT: CREATE QUEUE
+    await (0, auditLog_service_1.createAuditLog)({
         userId: req.user.id,
         action: client_1.AuditAction.CREATE_QUEUE,
         entity: "Queue",
         entityId: queue.id,
+        metadata: {
+            patientId: patient.id,
+            queueNumber: queue.number,
+        },
     });
     res.status(201).json({
         success: true,
@@ -92,10 +89,7 @@ router.get("/today", authJWT_1.authJWT, (0, requireRole_1.requireRole)(["registr
     const { start, end } = getTodayRange();
     const queues = await prisma_1.prisma.queue.findMany({
         where: {
-            date: {
-                gte: start,
-                lte: end,
-            },
+            date: { gte: start, lte: end },
         },
         include: {
             patient: {
@@ -119,7 +113,7 @@ router.get("/today", authJWT_1.authJWT, (0, requireRole_1.requireRole)(["registr
     });
 });
 // =======================
-// CALL QUEUE (NURSE)
+// CALL QUEUE (REGISTRATION → NURSE FLOW)
 // =======================
 router.patch("/:id/call", authJWT_1.authJWT, (0, requireRole_1.requireRole)(["registration"]), async (req, res) => {
     const queueId = Number(req.params.id);
@@ -146,7 +140,8 @@ router.patch("/:id/call", authJWT_1.authJWT, (0, requireRole_1.requireRole)(["re
             status: "DRAFT",
         },
     });
-    await (0, audit_1.logAudit)({
+    // 🔐 AUDIT: CALL QUEUE
+    await (0, auditLog_service_1.createAuditLog)({
         userId: req.user.id,
         action: client_1.AuditAction.CALL_QUEUE,
         entity: "Queue",
@@ -193,7 +188,8 @@ router.patch("/:id/done", authJWT_1.authJWT, (0, requireRole_1.requireRole)(["do
     if (updated.count === 0) {
         throw new AppError_1.AppError("No active medical record found", 400);
     }
-    await (0, audit_1.logAudit)({
+    // 🔐 AUDIT: DONE QUEUE
+    await (0, auditLog_service_1.createAuditLog)({
         userId: req.user.id,
         action: client_1.AuditAction.DONE_QUEUE,
         entity: "Queue",

@@ -1,4 +1,4 @@
-function buildAuditPayload(audit) {
+export function buildAuditPayload(audit) {
   return {
     auditId: audit.id,
     userId: audit.userId,

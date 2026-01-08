@@ -1,28 +1,12 @@
-import { prisma } from "../prisma";
+import { createAuditLog } from "../services/auditLog.service";
 import { AuditAction } from "@prisma/client";
 
-interface AuditParams {
+export async function auditLog(params: {
   userId: number;
   action: AuditAction;
   entity: string;
   entityId: number;
   metadata?: any;
-}
-
-export async function logAudit({
-  userId,
-  action,
-  entity,
-  entityId,
-  metadata,
-}: AuditParams) {
-  await prisma.auditLog.create({
-    data: {
-      userId,
-      action,
-      entity,
-      entityId,
-      metadata,
-    },
-  });
+}) {
+  return createAuditLog(params);
 }
