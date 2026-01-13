@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  datadog-agent:
+    image: datadog/agent:latest
+    container_name: dd-agent
+    restart: unless-stopped
+    environment:
+      - DD_API_KEY=$2db68874-1c7a-494f-bfbc-7c31cab998e2
+      - DD_SITE=datadoghq.com
+      - DD_LOGS_ENABLED=true
+      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+      - DD_CONTAINER_EXCLUDE=image:datadog/agent
+      - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
+
+      # Security Monitoring
+      - DD_RUNTIME_SECURITY_CONFIG_ENABLED=true
+      - DD_RUNTIME_SECURITY_CONFIG_NETWORK_ENABLED=true
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
